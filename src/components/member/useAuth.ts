@@ -71,11 +71,15 @@ export function useAuth() {
                 return true
             } else {
                 authState.value.error = '登录失败，请检查用户名和密码'
+                // 登录失败时也检查一次认证状态，确保状态一致
+                // await checkAuth()
                 return false
             }
         } catch (error) {
             console.error('登录失败:', error)
             authState.value.error = error instanceof Error ? error.message : '登录失败'
+            // 发生错误时也检查认证状态
+            // await checkAuth()
             return false
         } finally {
             authState.value.loading = false

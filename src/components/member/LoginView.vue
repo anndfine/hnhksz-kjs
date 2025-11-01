@@ -10,25 +10,25 @@
         <form @submit.prevent="handleLogin" class="login-form">
             <div class="mb-3">
                 <label for="username" class="form-label">学号/用户名</label>
-                <input type="text" class="form-control" id="username" v-model="form.username" :disabled="loading"
+                <input type="text" class="form-control" id="username" v-model="form.username" :disabled="localLoading"
                     required autocomplete="username">
             </div>
 
             <div class="mb-4">
                 <label for="password" class="form-label">密码</label>
-                <input type="password" class="form-control" id="password" v-model="form.password" :disabled="loading"
-                    required autocomplete="current-password">
+                <input type="password" class="form-control" id="password" v-model="form.password"
+                    :disabled="localLoading" required autocomplete="current-password">
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 login-btn" :disabled="loading">
-                <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-                {{ loading ? '登录中...' : '登录' }}
+            <button type="submit" class="btn btn-primary w-100 login-btn" :disabled="localLoading">
+                <span v-if="localLoading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ localLoading ? '登录中...' : '登录' }}
             </button>
         </form>
 
-        <div v-if="error" class="alert alert-danger mt-3" role="alert">
+        <div v-if="localError" class="alert alert-danger mt-3" role="alert">
             <i class="bi bi-exclamation-triangle me-2"></i>
-            {{ error }}
+            {{ localError }}
         </div>
 
         <div class="login-footer mt-4">
@@ -44,14 +44,14 @@
 import { ref, reactive } from 'vue'
 import { useAuth } from '@/components/member/useAuth.ts'
 
-const { login } = useAuth()
+const { login, error: authError } = useAuth()
 
 const emit = defineEmits<{
     loginSuccess: []
 }>()
 
-const loading = ref(false)
-const error = ref('')
+const localLoading = ref(false)  // 使用本地loading状态
+const localError = ref('')       // 使用本地error状态
 
 const form = reactive({
     username: '',
@@ -60,12 +60,12 @@ const form = reactive({
 
 const handleLogin = async () => {
     if (!form.username || !form.password) {
-        error.value = '请输入用户名和密码'
+        localError.value = '请输入用户名和密码'
         return
     }
 
-    loading.value = true
-    error.value = ''
+    localLoading.value = true
+    localError.value = ''
 
     try {
         const success = await login({
@@ -74,17 +74,21 @@ const handleLogin = async () => {
         })
 
         if (success) {
-            console.log("true")
+            console.log("登录成功")
             emit('loginSuccess')
         } else {
-            error.value = '用户名或密码错误'
-            return;
+            throw new Error("登录失败，设置错误信息")
         }
     } catch (err) {
-        error.value = '登录失败，请检查网络连接后重试'
-        console.error('登录错误:', err)
+        console.error('登录过程出错:', err)
+        localError.value = '登录失败，请检查网络连接后重试'
+        // throw new Error(err.message || '登录失败，请检查网络连接后重试')
     } finally {
-        loading.value = false
+        // localLoading.value = false
+        // 使用 setTimeout 避免状态冲突
+        setTimeout(() => {
+            localLoading.value = false
+        }, 100)
     }
 }
 </script>
