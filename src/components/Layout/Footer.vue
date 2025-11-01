@@ -23,11 +23,8 @@
           <div class="footer-links">
             <h6 class="fw-bold mb-3">快速链接</h6>
             <div class="d-flex flex-column gap-2">
-              <a href="#about" class="text-decoration-none text-light">关于我们</a>
-              <a href="#activities" class="text-decoration-none text-light">社团活动</a>
-              <a href="#projects" class="text-decoration-none text-light">项目展示</a>
-              <a href="#members" class="text-decoration-none text-light">成员风采</a>
-              <a href="#join" class="text-decoration-none text-light">加入我们</a>
+              <a href="https://yt437700.top" class="text-decoration-none text-light">yt437700</a>
+              <a href="/member/" class="text-decoration-none text-light">成员登录入口</a>
             </div>
           </div>
         </div>
