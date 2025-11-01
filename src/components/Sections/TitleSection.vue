@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="col-lg-6 text-center">
-          <div class="hero-image">
+          <div class="hero-image d-none">
             <i class="bi bi-robot display-1 text-white"></i>
           </div>
         </div>
