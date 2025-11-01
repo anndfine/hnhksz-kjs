@@ -72,13 +72,13 @@
                   <textarea class="form-control" id="experience" rows="3" placeholder="请简要描述你的相关经验或技能"></textarea>
                 </div>
                 <div class="col-12">
-                  <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-                    <i class="bi bi-send me-2"></i>提交申请
+                  <button type="submit" class="btn btn-primary w-100 py-2 fw-bold disabled" disabled>
+                    <i class="bi bi-send me-2"></i>提交申请<small class="text-danger">(网站报名渠道暂不可用)</small>
                   </button>
                 </div>
               </div>
             </form>
-
+            <hr>
             <div class="mt-4 text-center">
               <p class="text-muted small mb-2">或通过以下方式联系我们</p>
               <div class="d-flex justify-content-center gap-3">

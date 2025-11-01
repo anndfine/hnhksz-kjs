@@ -3,7 +3,7 @@
   <div id="app">
     <Navbar />
     <main>
-      <WelcomeSection />
+      <TitleSection />
       <AboutSection />
       <ActivitiesSection />
       <ProjectsSection />
@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import Navbar from "@/components/Layout/Navbar.vue"
 import Footer from '@/components/Layout/Footer.vue'
-import WelcomeSection from '@/components/Sections/HeroSection.vue'
+import TitleSection from '@/components/Sections/TitleSection.vue'
 import AboutSection from '@/components/Sections/AboutSection.vue'
 import ActivitiesSection from '@/components/Sections/ActivitiesSection.vue'
 import ProjectsSection from '@/components/Sections/ProjectsSection.vue'
