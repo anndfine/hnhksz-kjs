@@ -1,35 +1,53 @@
 <!-- src/views/member/MemberLayout.vue -->
 <template>
     <div class="member-app">
-        <!-- 顶部导航栏（简化版） -->
-        <MemberNavbar :is-sidebar-collapsed="isSidebarCollapsed" @toggle-sidebar="toggleSidebar" />
-
-        <!-- 侧边栏和内容区域容器 -->
-        <div class="main-container">
-            <!-- 侧边栏（主要导航） -->
-            <MemberSidebar :active-tab="activeTab" :is-collapsed="isSidebarCollapsed" @tab-change="handleTabChange"
-                @toggle="toggleSidebar" />
-
-            <!-- 主要内容区域 -->
-            <div class="main-content" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
-                <div class="content-wrapper">
-                    <!-- 页面标题栏 -->
-                    <div class="page-header mb-4">
-                        <!-- <h1 class="page-title">{{ pageTitles[activeTab] }}</h1> -->
-                        <!-- <p class="page-subtitle text-muted d-none">{{ pageSubtitles[activeTab] }}</p> -->
-                    </div>
-
-                    <!-- 动态组件切换 -->
-                    <component :is="currentComponent" />
-                </div>
+        <!-- 认证检查中 -->
+        <div v-if="authLoading" class="auth-loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">加载中...</span>
             </div>
+            <p class="mt-3">检查登录状态...</p>
         </div>
 
-        <!-- 全局模态框 -->
-        <AddDeviceModal v-if="showAddDeviceModal" @close="showAddDeviceModal = false" @save="handleAddDevice" />
-        <ExportDataModal v-if="showExportDataModal" @close="showExportDataModal = false" @export="handleExportData" />
-        <DeleteAccountModal v-if="showDeleteAccountModal" @close="showDeleteAccountModal = false"
-            @confirm="handleDeleteAccount" />
+        <!-- 未登录状态：显示登录界面 -->
+        <div v-else-if="!isAuthenticated" class="login-layout">
+            <LoginView @login-success="handleLoginSuccess" />
+        </div>
+
+        <!-- 已登录状态：显示主界面 -->
+        <div v-else class="main-layout">
+            <!-- 顶部导航栏 -->
+            <MemberNavbar :is-sidebar-collapsed="isSidebarCollapsed" :user="user" @toggle-sidebar="toggleSidebar"
+                @logout="handleLogout" />
+
+            <!-- 侧边栏和内容区域容器 -->
+            <div class="main-container">
+                <!-- 侧边栏 -->
+                <MemberSidebar :active-tab="activeTab" :is-collapsed="isSidebarCollapsed" @tab-change="handleTabChange"
+                    @toggle="toggleSidebar" />
+
+                <!-- 主要内容区域 -->
+                <div class="main-content" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
+                    <div class="content-wrapper">
+                        <!-- 页面标题栏 -->
+                        <div class="page-header mb-4">
+                            <!-- <h1 class="page-title">{{ pageTitles[activeTab] }}</h1>
+                            <p class="page-subtitle text-muted">{{ pageSubtitles[activeTab] }}</p> -->
+                        </div>
+
+                        <!-- 动态组件切换 -->
+                        <component :is="currentComponent" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- 全局模态框 -->
+            <AddDeviceModal v-if="showAddDeviceModal" @close="showAddDeviceModal = false" @save="handleAddDevice" />
+            <ExportDataModal v-if="showExportDataModal" @close="showExportDataModal = false"
+                @export="handleExportData" />
+            <DeleteAccountModal v-if="showDeleteAccountModal" @close="showDeleteAccountModal = false"
+                @confirm="handleDeleteAccount" />
+        </div>
     </div>
 </template>
 
@@ -37,6 +55,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // 导入组件
+import { useAuth } from '@/components/member/useAuth.ts'
+import LoginView from '@/components/member/LoginView.vue'
 import DashboardView from '@/components/member/DashboardView.vue'
 import MemberNavbar from '@/components/member/MemberNavbar.vue'
 import MemberSidebar from '@/components/member/MemberSidebar.vue'
@@ -49,8 +69,10 @@ import AddDeviceModal from '@/components/member/modals/AddDeviceModal.vue'
 import ExportDataModal from '@/components/member/modals/ExportDataModal.vue'
 import DeleteAccountModal from '@/components/member/modals/DeleteAccountModal.vue'
 
+const { isAuthenticated, user, loading: authLoading, checkAuth, logout, startPolling } = useAuth()
+
 // 当前激活的标签页
-const activeTab = ref('profile')
+const activeTab = ref('dashboard')
 
 // 侧边栏状态
 const isSidebarCollapsed = ref(false)
@@ -71,11 +93,12 @@ const pageTitles = {
 }
 
 const pageSubtitles = {
-    profile: '查看和编辑您的个人资料信息',
-    devices: '管理和监控您的物联网设备',
-    attendance: '查看您的活动打卡记录',
-    help: '了解如何使用成员系统的各项功能',
-    settings: '管理您的账户和系统设置'
+    dashboard: '查看系统概览和快速操作',
+    profile: '查看和编辑个人资料信息',
+    devices: '管理和监控物联网设备',
+    attendance: '记录和查看活动参与情况',
+    help: '了解系统功能和使用方法',
+    settings: '个性化设置和账户管理'
 }
 
 // 动态组件映射
@@ -116,6 +139,17 @@ const toggleSidebar = () => {
     isSidebarCollapsed.value = !isSidebarCollapsed.value
 }
 
+const handleLoginSuccess = () => {
+    // 登录成功后可以执行一些操作，比如跳转到默认页面
+    activeTab.value = 'dashboard'
+}
+
+const handleLogout = async () => {
+    await logout()
+    // 登出后可以重置状态
+    activeTab.value = 'dashboard'
+}
+
 const handleAddDevice = (deviceData: any) => {
     console.log('添加设备:', deviceData)
     showAddDeviceModal.value = false
@@ -132,8 +166,21 @@ const handleDeleteAccount = (password: string) => {
 }
 
 // 生命周期
-onMounted(() => {
+onMounted(async () => {
+    await checkAuth()
     checkScreenSize()
+
+    // 如果已认证，开始轮询检查
+    if (isAuthenticated.value) {
+        const pollingInterval = startPolling()
+
+        onUnmounted(() => {
+            if (pollingInterval) {
+                clearInterval(pollingInterval)
+            }
+        })
+    }
+
     window.addEventListener('resize', checkScreenSize)
 })
 
@@ -146,6 +193,27 @@ onUnmounted(() => {
 .member-app {
     min-height: 100vh;
     background-color: #f8f9fa;
+}
+
+.auth-loading {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-layout {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.main-layout {
+    min-height: 100vh;
 }
 
 .main-container {
