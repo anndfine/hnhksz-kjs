@@ -78,7 +78,7 @@ onMounted(() => {
 <style scoped>
 .hero-section {
   background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  margin-top: 76px;
+  margin-top: 56px;
   /* 导航栏高度 */
   transition: background-image 0.5s ease-in-out;
 }
