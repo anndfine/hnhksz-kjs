@@ -8,7 +8,7 @@
           <p class="lead mb-4">
             无论你是技术大神还是零基础小白，只要对科技充满热情，我们都欢迎你的加入！
           </p>
-          
+
           <div class="join-benefits mb-5">
             <div class="benefit-item d-flex align-items-center mb-3">
               <i class="bi bi-check-circle-fill text-warning me-3 fs-4"></i>
@@ -38,7 +38,7 @@
             </ul>
           </div>
         </div>
-        
+
         <div class="col-lg-6">
           <div class="join-form bg-white rounded-4 p-4 text-dark">
             <h4 class="fw-bold mb-4 text-center">立即报名</h4>
@@ -78,7 +78,7 @@
                 </div>
               </div>
             </form>
-            
+
             <div class="mt-4 text-center">
               <p class="text-muted small mb-2">或通过以下方式联系我们</p>
               <div class="d-flex justify-content-center gap-3">
@@ -104,42 +104,50 @@
       <div class="row mt-5 pt-5">
         <div class="col-12">
           <div class="bg-white rounded-4 p-4 text-dark">
-            <h4 class="fw-bold mb-4 text-center">招新时间安排</h4>
+            <h4 class="fw-bold mb-4 text-center">流程安排</h4>
             <div class="row text-center">
               <div class="col-md-3 mb-3">
                 <div class="timeline-item">
-                  <div class="timeline-badge bg-success text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                  <div
+                    class="timeline-badge bg-success text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
+                    style="width: 60px; height: 60px;">
                     <i class="bi bi-calendar-check fs-5"></i>
                   </div>
                   <h6 class="fw-bold">报名阶段</h6>
-                  <p class="text-muted small">9月1日 - 9月15日</p>
+                  <p class="text-muted small">在校期间</p>
                 </div>
               </div>
               <div class="col-md-3 mb-3">
                 <div class="timeline-item">
-                  <div class="timeline-badge bg-warning text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                  <div
+                    class="timeline-badge bg-warning text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
+                    style="width: 60px; height: 60px;">
                     <i class="bi bi-people fs-5"></i>
                   </div>
                   <h6 class="fw-bold">面试选拔</h6>
-                  <p class="text-muted small">9月16日 - 9月20日</p>
+                  <p class="text-muted small">报名后第二周</p>
                 </div>
               </div>
               <div class="col-md-3 mb-3">
                 <div class="timeline-item">
-                  <div class="timeline-badge bg-info text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                    <i class="bi bi-mortarboard fs-5"></i>
-                  </div>
-                  <h6 class="fw-bold">新生培训</h6>
-                  <p class="text-muted small">9月21日 - 9月30日</p>
-                </div>
-              </div>
-              <div class="col-md-3 mb-3">
-                <div class="timeline-item">
-                  <div class="timeline-badge bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                  <div
+                    class="timeline-badge bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
+                    style="width: 60px; height: 60px;">
                     <i class="bi bi-flag fs-5"></i>
                   </div>
                   <h6 class="fw-bold">正式入社</h6>
-                  <p class="text-muted small">10月1日起</p>
+                  <p class="text-muted small">选报后一周内</p>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="timeline-item">
+                  <div
+                    class="timeline-badge bg-info text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center"
+                    style="width: 60px; height: 60px;">
+                    <i class="bi bi-mortarboard fs-5"></i>
+                  </div>
+                  <h6 class="fw-bold">新生培训</h6>
+                  <p class="text-muted small">入社后</p>
                 </div>
               </div>
             </div>
@@ -171,13 +179,15 @@
   transform: translateY(-5px);
 }
 
-.form-control, .form-select {
+.form-control,
+.form-select {
   border-radius: 10px;
   border: 2px solid #e9ecef;
   transition: all 0.3s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 0.2rem rgba(30, 60, 114, 0.25);
 }
