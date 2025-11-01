@@ -1,0 +1,110 @@
+// src/services/authService.ts
+/**
+ * 认证服务
+ */
+import { performChallengeResponse } from '@/utils/challenge'
+
+export interface LoginCredentials {
+    username: string
+    password: string
+    challenge: string
+    response: string
+}
+
+export interface AuthResponse {
+    success: boolean
+    message?: string
+    data?: any
+    code?: number
+}
+
+/**
+ * 执行登录流程
+ */
+export async function performLogin(credentials: { username: string; password: string }): Promise<boolean> {
+    try {
+        // 1. 执行挑战-响应流程
+        const challengeResult = await performChallengeResponse(
+            credentials.username,
+            credentials.password
+        )
+        // 如果挑战获取失败，直接返回 false
+        if (!challengeResult) {
+            console.error('挑战-响应流程失败')
+            return false
+        }
+
+        // 2. 发送登录请求
+        const loginData: LoginCredentials = {
+            username: credentials.username,
+            password: challengeResult.encryptedPassword, // 不发送明文密码
+            challenge: challengeResult.challenge,
+            response: challengeResult.response
+        }
+
+        const loginResponse = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(loginData)
+        })
+
+        // 检查响应状态
+        if (!loginResponse.ok) {
+            console.error('登录请求失败:', loginResponse.status)
+            return false
+        }
+
+        const result: AuthResponse = await loginResponse.json()
+
+        return result.success
+
+    } catch (error) {
+        console.error('登录流程错误:', error)
+        return false
+    }
+}
+
+/**
+ * 获取用户信息
+ */
+export async function fetchUserInfo(): Promise<AuthResponse> {
+    try {
+        const userResponse = await fetch('/api/auth/me', {
+            credentials: 'include'
+        })
+
+        if (!userResponse.ok) {
+            return {
+                success: false,
+                message: '网络错误',
+                code: userResponse.status
+            }
+        }
+
+        return await userResponse.json()
+    } catch (error) {
+        console.error('获取用户信息失败:', error)
+        return {
+            success: false,
+            message: '网络错误',
+            code: 500
+        }
+    }
+}
+
+/**
+ * 登出
+ */
+export async function performLogout(): Promise<void> {
+    try {
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        })
+    } catch (error) {
+        console.error('登出失败:', error)
+    }
+}

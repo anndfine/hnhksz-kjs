@@ -38,7 +38,7 @@ export async function deriveKey(password: string, salt: string): Promise<ArrayBu
 /**
  * 将 ArrayBuffer 转换为十六进制字符串
  */
-function bufferToHex(buffer: ArrayBuffer): string {
+export function bufferToHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
     .map(b => b.toString(16).padStart(2, '0'))
     .join('')

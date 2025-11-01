@@ -74,9 +74,11 @@ const handleLogin = async () => {
         })
 
         if (success) {
+            console.log("true")
             emit('loginSuccess')
         } else {
             error.value = '用户名或密码错误'
+            return;
         }
     } catch (err) {
         error.value = '登录失败，请检查网络连接后重试'
