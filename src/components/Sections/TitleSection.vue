@@ -17,7 +17,7 @@
             <a href="#join" class="btn btn-outline-light btn-lg px-4">加入我们</a>
           </div>
         </div>
-        <div class="col-lg-6 text-center">
+        <div class="col-lg-6 text-center d-none">
           <div class="hero-image d-none">
             <i class="bi bi-robot display-1 text-white"></i>
           </div>
