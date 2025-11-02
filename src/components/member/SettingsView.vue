@@ -3,8 +3,7 @@
     <div class="tab-content">
         <div class="row mb-4">
             <div class="col-12">
-                <h2 class="display-5 fw-bold mb-3">设置</h2>
-                <p class="lead text-muted">管理您的账户和系统设置</p>
+                <p class="lead text-muted">管理账户和系统设置</p>
             </div>
         </div>
         <!-- 设置内容 -->

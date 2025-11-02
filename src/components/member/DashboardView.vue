@@ -121,15 +121,15 @@
                                         {{ announcement.type }}
                                     </span>
                                 </div>
-                                <p class="text-muted mb-2">{{ announcement.content }}</p>
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="text-muted mb-1">{{ announcement.content }}</div>
+                                <!-- <div class="d-flex justify-content-between align-items-center d-none mt-1">
                                     <small class="text-muted">
                                         <i class="bi bi-clock me-1"></i>{{ announcement.time }}
                                     </small>
                                     <small class="text-muted">
                                         <i class="bi bi-person me-1"></i>{{ announcement.publisher }}
                                     </small>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -223,7 +223,7 @@
                 </div>
 
                 <!-- 最近活动提醒 -->
-                <div class="card border-0 shadow-sm mb-4">
+                <div class="card border-0 shadow-sm mb-4 d-none">
                     <div class="card-header bg-transparent border-0 pb-0">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-clock-history text-info me-2"></i>
@@ -301,8 +301,8 @@ const recentActivities = ref([
 
 // 快速操作
 const quickActions = ref([
-    { id: 'checkin', name: '立即打卡', icon: 'bi bi-check-circle' },
-    { id: 'addDevice', name: '添加设备', icon: 'bi bi-plus-circle' },
+    // { id: 'checkin', name: '立即打卡', icon: 'bi bi-check-circle' },
+    // { id: 'addDevice', name: '添加设备', icon: 'bi bi-plus-circle' },
     { id: 'newProject', name: '新建项目', icon: 'bi bi-plus-lg' },
     { id: 'report', name: '问题反馈', icon: 'bi bi-bug' }
 ])
@@ -311,28 +311,35 @@ const quickActions = ref([
 const announcements = ref([
     {
         id: 1,
-        title: '关于举办科技创新大赛的通知',
-        content: '为激发同学们的创新热情，科技社将举办年度科技创新大赛，欢迎各位同学踊跃报名参加。',
+        title: '关于成员系统持续维护的通知',
         type: '重要',
-        time: '2024-01-15',
-        publisher: '科技社管理组'
+        time: '2025-11-01',
+        publisher: '科技社成员系统管理团队'
     },
-    {
-        id: 2,
-        title: '新设备入库通知',
-        content: '最新一批物联网开发设备已入库，包括多种传感器和控制器，欢迎同学们申请使用。',
-        type: '通知',
-        time: '2024-01-14',
-        publisher: '设备管理组'
-    },
-    {
-        id: 3,
-        title: '寒假实验室开放安排',
-        content: '寒假期间实验室将继续开放，具体时间安排请查看详细通知。',
-        type: '安排',
-        time: '2024-01-13',
-        publisher: '实验室管理组'
-    }
+    // {
+    //     id: 1,
+    //     title: '关于举办科技创新大赛的通知',
+    //     content: '为激发同学们的创新热情，科技社将举办年度科技创新大赛，欢迎各位同学踊跃报名参加。',
+    //     type: '重要',
+    //     time: '2024-01-15',
+    //     publisher: '科技社管理组'
+    // },
+    // {
+    //     id: 2,
+    //     title: '新设备入库通知',
+    //     content: '最新一批物联网开发设备已入库，包括多种传感器和控制器，欢迎同学们申请使用。',
+    //     type: '通知',
+    //     time: '2024-01-14',
+    //     publisher: '设备管理组'
+    // },
+    // {
+    //     id: 3,
+    //     title: '寒假实验室开放安排',
+    //     content: '寒假期间实验室将继续开放，具体时间安排请查看详细通知。',
+    //     type: '安排',
+    //     time: '2024-01-13',
+    //     publisher: '实验室管理组'
+    // }
 ])
 
 // 计算属性

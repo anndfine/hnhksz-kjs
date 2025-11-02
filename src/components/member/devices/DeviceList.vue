@@ -3,9 +3,14 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title fw-bold mb-0">管理和监控科技社的物联网设备</h5>
-                <button class="btn btn-primary" @click="$emit('add')">
-                    <i class="bi bi-plus-circle me-1"></i>添加设备
+                <h5 class="card-title fw-bold mb-0">科技社的物联网设备</h5>
+                <!-- <button class="btn btn-primary" @click="$emit('add')">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    添加设备
+                </button> -->
+                <button class="btn btn-primary disabled" @click="$emit('add')">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    联系指导老师或管理员添加设备
                 </button>
             </div>
 

@@ -3,7 +3,6 @@
     <div class="tab-content">
         <div class="row mb-4">
             <div class="col-12">
-                <h2 class="display-5 fw-bold mb-3">使用帮助</h2>
                 <p class="lead text-muted">了解如何使用成员系统的各项功能</p>
             </div>
         </div>

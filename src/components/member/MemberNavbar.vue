@@ -8,7 +8,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <a class="navbar-brand fw-bold" href="#">
+                <a class="navbar-brand fw-bold d-lg-none" href="#">
                     <i class="bi bi-person-circle me-2"></i>
                     <span class="d-none d-sm-inline">成员系统</span>
                 </a>
@@ -16,7 +16,7 @@
 
             <!-- 桌面端页面标题 -->
             <div class="navbar-nav d-none d-lg-flex mx-auto">
-                <span class="nav-text text-white fw-semibold">
+                <span class="nav-text text-white fw-semibold d-none">
                     {{ currentPageTitle }}
                 </span>
             </div>
