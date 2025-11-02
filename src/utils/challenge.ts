@@ -24,16 +24,26 @@ export async function fetchChallenge(): Promise<Challenge> {
         })
 
         if (!challengeResponse.ok) {
-            throw new Error('获取挑战失败')
+            throw new Error('获取挑战失败，认证服务器可能维护或故障')
         }
-
-        const result = await challengeResponse.json()
-
-        if (result.success && result.data) {
-            currentChallenge = result.data
-            return result.data
-        } else {
-            throw new Error(result.message || '获取挑战失败')
+        try {
+            // const result = await challengeResponse.json()
+            const result = {
+                success: true,
+                data: {
+                    challenge: 'example_challenge',
+                    timestamp: Date.now(),
+                    expires: Date.now() + 600000 // 10分钟过期
+                }
+            }
+            if (result.success && result.data) {
+                currentChallenge = result.data
+                return result.data
+            } else {
+                throw new Error('获取挑战信息不正确')
+            }
+        } catch (getcerr) {
+            throw new Error(`解析挑战失败，数据结构不正确，认证服务器可能维护相关功能或故障`)
         }
     } catch (error) {
         console.error('获取挑战错误:', error)
@@ -82,8 +92,8 @@ export async function performChallengeResponse(
         // 并行执行两个加密操作
         const [encryptedResult, response] = await Promise.all([
             // 使用 PBKDF2 加密密码（慢，用于存储验证）
-            encryptPassword(password),
-            // 使用 SHA-256 计算挑战响应（快，用于实时验证）
+            encryptPassword(username, password),
+            // 使用 SHA-256 计算挑战响应（快，用于实时验证，同时增大恶意请求成本）
             computeChallengeResponse(password, challenge.challenge)
         ])
         return {

@@ -2,9 +2,16 @@
 /**
  * 生成随机盐值
  */
-export async function generateSalt(): Promise<string> {
-  const salt = crypto.getRandomValues(new Uint8Array(16))
-  return Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('')
+export async function generateSalt(username: string): Promise<string> {
+  // 使用用户名作为基础，加上固定前缀确保安全性
+  const baseSalt = `hnhksz_${username}_salt`;
+  const encoder = new TextEncoder();
+  const baseBuffer = encoder.encode(baseSalt);
+
+  // 使用SHA-256生成固定但唯一的盐值
+  const hashBuffer = await crypto.subtle.digest('SHA-256', baseBuffer);
+  return bufferToHex(hashBuffer).substring(0, 32); // 取前32字符作为盐值
+
 }
 
 /**
@@ -14,7 +21,7 @@ export async function deriveKey(password: string, salt: string): Promise<ArrayBu
   const encoder = new TextEncoder()
   const passwordBuffer = encoder.encode(password)
   const saltBuffer = encoder.encode(salt)
-  
+
   const key = await crypto.subtle.importKey(
     'raw',
     passwordBuffer,
@@ -22,7 +29,7 @@ export async function deriveKey(password: string, salt: string): Promise<ArrayBu
     false,
     ['deriveBits']
   )
-  
+
   return await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
@@ -47,14 +54,14 @@ export function bufferToHex(buffer: ArrayBuffer): string {
 /**
  * 完整的密码加密流程
  */
-export async function encryptPassword(password: string): Promise<{
+export async function encryptPassword(username: string, password: string): Promise<{
   encrypted: string
   salt: string
 }> {
-  const salt = await generateSalt()
+  const salt = await generateSalt(username);
   const derivedKey = await deriveKey(password, salt)
   const encrypted = bufferToHex(derivedKey)
-  
+
   return {
     encrypted,
     salt

@@ -80,7 +80,8 @@ export function useAuth() {
             authState.value.error = error instanceof Error ? error.message : '登录失败'
             // 发生错误时也检查认证状态
             // await checkAuth()
-            return false
+            // return false
+            throw error
         } finally {
             authState.value.loading = false
         }

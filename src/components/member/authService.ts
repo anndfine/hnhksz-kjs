@@ -30,8 +30,9 @@ export async function performLogin(credentials: { username: string; password: st
         )
         // 如果挑战获取失败，直接返回 false
         if (!challengeResult) {
-            console.error('挑战-响应流程失败')
-            return false
+            // console.error('挑战-响应流程失败')
+            // return false
+            throw new Error("挑战-响应流程失败")
         }
 
         // 2. 发送登录请求
@@ -42,7 +43,7 @@ export async function performLogin(credentials: { username: string; password: st
             response: challengeResult.response
         }
 
-        const loginResponse = await fetch('/api/auth/login', {
+        const loginResponse = await fetch('https://kjcxapi3.yt437700.top/api/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -63,7 +64,8 @@ export async function performLogin(credentials: { username: string; password: st
 
     } catch (error) {
         console.error('登录流程错误:', error)
-        return false
+        // return false
+        throw error
     }
 }
 
@@ -72,8 +74,9 @@ export async function performLogin(credentials: { username: string; password: st
  */
 export async function fetchUserInfo(): Promise<AuthResponse> {
     try {
-        const userResponse = await fetch('/api/auth/me', {
-            credentials: 'include'
+        const userResponse = await fetch('https://kjcxapi3.yt437700.top/api/auth/me', {
+            credentials: 'include',
+            method: "POST"
         })
 
         if (!userResponse.ok) {

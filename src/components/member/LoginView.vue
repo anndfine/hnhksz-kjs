@@ -9,7 +9,7 @@
 
         <form @submit.prevent="handleLogin" class="login-form">
             <div class="mb-3">
-                <label for="username" class="form-label">学号/用户名</label>
+                <label for="username" class="form-label">学号/用户名/邮箱</label>
                 <input type="text" class="form-control" id="username" v-model="form.username" :disabled="localLoading"
                     required autocomplete="username">
             </div>
@@ -77,11 +77,12 @@ const handleLogin = async () => {
             console.log("登录成功")
             emit('loginSuccess')
         } else {
-            throw new Error("登录失败，设置错误信息")
+            throw new Error("用户名或密码错误")
         }
     } catch (err) {
         console.error('登录过程出错:', err)
-        localError.value = '登录失败，请检查网络连接后重试'
+        localError.value = `登录失败，请检查网络连接后重试。问题：${err || '未知错误'}`
+        localError.value = `${err || '未知错误'}`
         // throw new Error(err.message || '登录失败，请检查网络连接后重试')
     } finally {
         // localLoading.value = false
