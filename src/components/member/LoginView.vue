@@ -9,7 +9,7 @@
 
         <form @submit.prevent="handleLogin" class="login-form">
             <div class="mb-3">
-                <label for="username" class="form-label">学号/用户名/邮箱</label>
+                <label for="username" class="form-label">邮箱</label>
                 <input type="text" class="form-control" id="username" v-model="form.username" :disabled="localLoading"
                     required autocomplete="username">
             </div>
