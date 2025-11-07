@@ -35,45 +35,45 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>设备ID</th>
+                            <!-- <th>设备ID</th> -->
                             <th>设备名称</th>
-                            <th>设备类型</th>
-                            <th>版本</th>
+                            <!-- <th>设备类型</th> -->
+                            <!-- <th>版本</th> -->
                             <th>状态</th>
-                            <th>IP地址</th>
-                            <th>功能</th>
+                            <!-- <th>IP地址</th> -->
+                            <!-- <th>功能</th> -->
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="device in devices" :key="device.id">
-                            <td>
+                            <!-- <td>
                                 <code class="text-primary">{{ device.id }}</code>
-                            </td>
+                            </td> -->
                             <td>{{ device.name || '未命名' }}</td>
-                            <td>
+                            <!-- <td>
                                 <span class="badge bg-info">{{ formatDeviceType(device.type) }}</span>
-                            </td>
-                            <td>
+                            </td> -->
+                            <!-- <td>
                                 <span class="badge bg-secondary">{{ device.version }}</span>
-                            </td>
+                            </td> -->
                             <td>
                                 <span :class="['badge', device.isOnline ? 'bg-success' : 'bg-danger']">
                                     <i class="bi" :class="device.isOnline ? 'bi-wifi' : 'bi-wifi-off'"></i>
                                     {{ formatStatusWithTime(device.isOnline || false, device.lastSeen) }}
                                 </span>
                             </td>
-                            <td>
+                            <!-- <td>
                                 <code class="text-muted small">{{ device.ip }}</code>
-                            </td>
-                            <td>
+                            </td> -->
+                            <!-- <td>
                                 <div class="d-flex flex-wrap gap-1" style="max-width: 200px;">
                                     <span v-for="capability in device.capabilities" :key="capability"
                                         class="badge bg-light text-dark border small">
                                         {{ formatCapability(capability) }}
                                     </span>
                                 </div>
-                            </td>
+                            </td> -->
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-1" @click="$emit('view', device)">
                                     <i class="bi bi-eye"></i>
