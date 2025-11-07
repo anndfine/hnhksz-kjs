@@ -7,7 +7,7 @@
           <div class="footer-about">
             <h5 class="fw-bold mb-3">
               <i class="bi bi-cpu-fill me-2"></i>
-              海口四中科技社
+              海口市第四中学展翼科技社
             </h5>
             <p class="text-muted">
               探索科技，创造未来。我们致力于培养学生的科技创新能力和实践能力。
@@ -31,18 +31,18 @@
 
         <div class="col-lg-4">
           <div class="footer-contact text-lg-end">
-            <h6 class="fw-bold mb-3">关注我们</h6>
+            <!-- <h6 class="fw-bold mb-3">关注我们</h6>
             <div class="d-flex justify-content-lg-end gap-3 mb-3">
               <a href="#" class="text-white fs-5"><i class="bi bi-qq"></i></a>
               <a href="#" class="text-white fs-5"><i class="bi bi-wechat"></i></a>
               <a href="#" class="text-white fs-5"><i class="bi bi-github"></i></a>
-            </div>
+            </div> -->
             <!-- 技术栈 -->
             <div class="mb-3">
-              <h6 class="fw-bold mb-2 text-light">技术栈</h6>
+              <h6 class="fw-bold mb-2 text-light">构成</h6>
               <div class="d-flex justify-content-lg-end flex-wrap gap-2">
                 <span class="badge bg-success d-flex align-items-center">
-                  <i class="bi bi-filetype-vue me-1"></i> Vue 3
+                  <i class="bi bi-file-code me-1"></i> Vue 3
                 </span>
                 <span class="badge bg-info d-flex align-items-center">
                   <i class="bi bi-filetype-tsx me-1"></i> TypeScript
@@ -54,9 +54,15 @@
                   <i class="bi bi-bootstrap me-1"></i> Bootstrap
                 </span>
               </div>
+              <a href="https://github.com/anndfine/hnhksz-kjs" class="text-white nav-link"><i
+                  class="bi bi-github">&nbsp;</i>Bug反馈 | 提供建议 | 贡献代码</a>
+              <a href="/help/" class="text-white nav-link">
+                <i class="bi bi-book">&nbsp;</i>新手入门指南
+              </a>
+
             </div>
             <div class="text-secondary small">
-              <div>Copyright &copy; 2023 海口市第四中学科技社</div>
+              <div>Copyright &copy; 2025 海口市第四中学展翼科技社</div>
               <div>All Rights Reserved</div>
             </div>
           </div>

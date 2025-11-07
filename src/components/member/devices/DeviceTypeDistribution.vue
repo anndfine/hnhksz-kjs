@@ -1,6 +1,6 @@
 <!-- src/components/member/devices/DeviceTypeDistribution.vue -->
 <template>
-    <div class="card border-0 shadow-sm h-100">
+    <div class="card border-0 shadow-sm h-100 d-none">
         <div class="card-body p-4">
             <h5 class="card-title fw-bold mb-4">设备类型分布</h5>
             <div class="device-types">
