@@ -15,17 +15,6 @@
         <!-- 项目卡片 -->
         <div v-for="project in projects" :key="project.id" class="col-lg-4 col-md-6">
           <div class="project-card card border-0 shadow-sm h-100">
-            <div class="project-image position-relative overflow-hidden">
-              <div
-                :class="['placeholder-image', project.color, 'd-flex align-items-center justify-content-center text-white']"
-                style="height: 200px;">
-                <i :class="[project.icon, 'display-4']"></i>
-              </div>
-              <div
-                class="project-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
-                <button class="btn btn-light rounded-pill px-4">查看详情</button>
-              </div>
-            </div>
             <div class="card-body p-4">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <h4 class="fw-bold">{{ project.title }}</h4>
@@ -39,17 +28,6 @@
               <div class="project-tech">
                 <span v-for="tech in project.technologies" :key="tech" class="badge bg-light text-dark me-2 mb-1">
                   {{ tech }}
-                </span>
-              </div>
-              <div class="project-meta mt-3 d-flex justify-content-between text-muted small">
-                <span>
-                  <i class="bi bi-person me-1"></i>
-                  {{ project.participants.length > 1 ? project.participants[0] + ' 等' + project.participants.length +
-                    '人' : project.participants[0] }}
-                </span>
-                <span>
-                  <i class="bi bi-calendar me-1"></i>
-                  {{ project.startDate }}
                 </span>
               </div>
             </div>
