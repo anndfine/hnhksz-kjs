@@ -46,13 +46,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="device in devices" :key="device.deviceId">
+                        <tr v-for="device in devices" :key="device.id">
                             <td>
-                                <code class="text-primary">{{ device.deviceId }}</code>
+                                <code class="text-primary">{{ device.id }}</code>
                             </td>
                             <td>{{ device.name || '未命名' }}</td>
                             <td>
-                                <span class="badge bg-info">{{ formatDeviceType(device.deviceType) }}</span>
+                                <span class="badge bg-info">{{ formatDeviceType(device.type) }}</span>
                             </td>
                             <td>
                                 <span class="badge bg-secondary">{{ device.version }}</span>
@@ -60,7 +60,7 @@
                             <td>
                                 <span :class="['badge', device.isOnline ? 'bg-success' : 'bg-danger']">
                                     <i class="bi" :class="device.isOnline ? 'bi-wifi' : 'bi-wifi-off'"></i>
-                                    {{ formatStatusWithTime(device.isOnline, device.lastSeen) }}
+                                    {{ formatStatusWithTime(device.isOnline || false, device.lastSeen) }}
                                 </span>
                             </td>
                             <td>
@@ -81,7 +81,7 @@
                                 <button class="btn btn-sm btn-outline-secondary me-1" @click="$emit('edit', device)">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger" @click="$emit('delete', device.deviceId)">
+                                <button class="btn btn-sm btn-outline-danger" @click="$emit('delete', device.id)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -98,15 +98,17 @@ import { ref, onMounted } from 'vue'
 import { apinodes } from '@/data/apinodes'
 
 interface DeviceCapability {
-    deviceId: string
-    deviceType: string
-    version: string
-    status: string
-    capabilities: string[]
-    lastSeen: number
-    ip: string
-    isOnline: boolean
+    id: string
     name?: string
+    type?: string | undefined
+    status?: string
+    lastSeen: number
+
+
+    version?: string
+    capabilities?: string[]
+    ip?: string
+    isOnline?: boolean
 }
 
 interface DeviceListResponse {
@@ -163,14 +165,15 @@ const refreshDevices = () => {
 }
 
 // 格式化设备类型
-const formatDeviceType = (type: string): string => {
+const formatDeviceType = (type: string | undefined): string => {
     const typeMap: Record<string, string> = {
         'sensor': '传感器',
         'actuator': '执行器',
         'controller': '控制器',
         'gateway': '网关'
     }
-    return typeMap[type] || type
+    if (!type) return '未知类型'
+    else return typeMap[type] || type
 }
 
 // 格式化功能名称
@@ -215,7 +218,7 @@ onMounted(() => {
 defineEmits<{
     view: [device: DeviceCapability]
     edit: [device: DeviceCapability]
-    delete: [deviceId: string]
+    delete: [id: string]
 }>()
 </script>
 

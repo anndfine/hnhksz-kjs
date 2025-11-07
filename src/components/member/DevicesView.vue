@@ -28,17 +28,23 @@ import DeviceTypeDistribution from '@/components/member/devices/DeviceTypeDistri
 
 interface Device {
     id: string
-    name: string
-    type: string
-    status: '在线' | '离线'
-    lastOnline: string
+    name?: string
+    type?: string | undefined
+    status?: string
+    lastSeen: number
+
+
+    version?: string
+    capabilities?: string[]
+    ip?: string
+    isOnline?: boolean
 }
 
 const devices = ref<Device[]>([
-    { id: 'DEV001', name: '温湿度传感器', type: '传感器', status: '在线', lastOnline: '2023-11-15 14:30' },
-    { id: 'DEV002', name: '智能LED灯', type: '执行器', status: '离线', lastOnline: '2023-11-14 18:45' },
-    { id: 'DEV003', name: 'Arduino控制器', type: '控制器', status: '在线', lastOnline: '2023-11-15 15:20' },
-    { id: 'DEV004', name: 'OLED显示屏', type: '显示器', status: '在线', lastOnline: '2023-11-15 12:10' }
+    { id: 'DEV001', name: '温湿度传感器', type: '传感器', status: '在线', lastSeen: 1720334500 },
+    { id: 'DEV002', name: '智能LED灯', type: '执行器', status: '离线', lastSeen: 1720334400 },
+    { id: 'DEV003', name: 'Arduino控制器', type: '控制器', status: '在线', lastSeen: 1720334520 },
+    { id: 'DEV004', name: 'OLED显示屏', type: '显示器', status: '在线', lastSeen: 1720334460 }
 ])
 
 const deviceStats = computed(() => {
@@ -52,7 +58,8 @@ const deviceStats = computed(() => {
 const deviceTypeDistribution = computed(() => {
     const distribution: Record<string, number> = {}
     devices.value.forEach(device => {
-        distribution[device.type] = (distribution[device.type] || 0) + 1
+        if (device.type)
+            distribution[device.type] = (distribution[device.type] || 0) + 1
     })
     return distribution
 })
