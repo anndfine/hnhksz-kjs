@@ -121,7 +121,7 @@
                                         {{ announcement.type }}
                                     </span>
                                 </div>
-                                <div class="text-muted mb-1">{{ announcement.content }}</div>
+                                <!-- <div class="text-muted mb-1">{{ announcement.content }}</div> -->
                                 <!-- <div class="d-flex justify-content-between align-items-center d-none mt-1">
                                     <small class="text-muted">
                                         <i class="bi bi-clock me-1"></i>{{ announcement.time }}

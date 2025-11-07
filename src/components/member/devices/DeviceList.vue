@@ -95,6 +95,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { apinodes } from '@/data/apinodes'
 
 interface DeviceCapability {
     deviceId: string
@@ -128,7 +129,7 @@ const fetchDevices = async () => {
     error.value = null
 
     try {
-        const response = await fetch('https://kjcxapi3.yt437700.top/api/device/online-list', {
+        const response = await fetch(`${apinodes[0]!.domain}/api/device/online-list`, {
             method: 'GET',
             credentials: 'include',
             headers: {

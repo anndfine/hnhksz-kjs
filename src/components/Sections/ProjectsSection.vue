@@ -54,19 +54,15 @@
         <div class="col-12">
           <div class="bg-white rounded-4 shadow-sm p-4">
             <div class="row text-center">
-              <div class="col-md-3 col-6 mb-3">
+              <div class="col mb-3">
                 <div class="display-6 fw-bold text-primary">{{ completedProjectsCount }}</div>
                 <div class="text-muted">已完成项目</div>
               </div>
-              <div class="col-md-3 col-6 mb-3">
+              <div class="col mb-3">
                 <div class="display-6 fw-bold text-success">{{ inProgressProjectsCount }}</div>
                 <div class="text-muted">进行中项目</div>
               </div>
-              <div class="col-md-3 col-6 mb-3">
-                <div class="display-6 fw-bold text-info">{{ totalParticipants }}</div>
-                <div class="text-muted">参与成员</div>
-              </div>
-              <div class="col-md-3 col-6 mb-3">
+              <div class="col mb-3">
                 <div class="display-6 fw-bold text-warning">{{ plannedProjectsCount }}</div>
                 <div class="text-muted">规划中项目</div>
               </div>

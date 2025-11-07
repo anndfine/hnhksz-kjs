@@ -3,6 +3,7 @@
  * 认证服务
  */
 import { performChallengeResponse } from '@/utils/challenge'
+import { apinodes } from '@/data/apinodes'
 
 export interface LoginCredentials {
     username: string
@@ -43,7 +44,7 @@ export async function performLogin(credentials: { username: string; password: st
             response: challengeResult.response
         }
 
-        const loginResponse = await fetch('https://kjcxapi3.yt437700.top/api/auth/login', {
+        const loginResponse = await fetch(`${apinodes[0]!.domain}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -74,7 +75,7 @@ export async function performLogin(credentials: { username: string; password: st
  */
 export async function fetchUserInfo(): Promise<AuthResponse> {
     try {
-        const userResponse = await fetch('https://kjcxapi3.yt437700.top/api/auth/me', {
+        const userResponse = await fetch(`${apinodes[0]!.domain}/api/auth/me`, {
             credentials: 'include',
             method: "POST"
         })
