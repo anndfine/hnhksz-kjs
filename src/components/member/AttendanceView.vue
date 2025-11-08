@@ -63,6 +63,20 @@
             </div>
         </div>
 
+        <!-- 状态提醒横幅 -->
+        <div v-if="showStatusAlert" class="row mb-4">
+            <div class="col-12">
+                <div :class="['alert', statusAlertClass, 'd-flex', 'align-items-center']" role="alert">
+                    <i :class="statusAlertIcon" class="me-2 fs-5"></i>
+                    <div class="flex-grow-1">
+                        <strong>{{ statusAlertTitle }}</strong>
+                        <div class="small">{{ statusAlertMessage }}</div>
+                    </div>
+                    <button type="button" class="btn-close" @click="dismissStatusAlert"></button>
+                </div>
+            </div>
+        </div>
+
         <!-- 操作按钮 -->
         <div class="row mb-4">
             <div class="col-12">
@@ -118,24 +132,24 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>序号</th>
-                                        <th>打卡时间</th>
+                                        <th class="hide-below-md">序号</th>
+                                        <th class="hide-below-lg">打卡时间</th>
                                         <th>签退时间</th>
                                         <th>时长</th>
                                         <th>状态</th>
-                                        <!-- <th>操作</th> -->
+                                        <th class="d-none">操作</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(record, index) in filteredRecords" :key="index"
+                                    <tr v-for="(record, index) in paginatedRecords" :key="index"
                                         :class="{ 'table-active': record.status === 'pending' }">
-                                        <td>{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+                                        <td class="hide-below-md">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
                                         <td>
                                             <div>{{ formatTime(record.checkin_time) }}</div>
                                             <small class="text-muted">{{ formatRelativeTime(record.checkin_time)
-                                            }}</small>
+                                                }}</small>
                                         </td>
-                                        <td>
+                                        <td class="hide-below-lg">
                                             <div>{{ formatTime(record.checkout_time) }}</div>
                                             <small v-if="record.checkout_time" class="text-muted">
                                                 {{ formatRelativeTime(record.checkout_time) }}
@@ -156,7 +170,7 @@
                                                 {{ getStatusText(record.status) }}
                                             </span>
                                         </td>
-                                        <!-- <td>
+                                        <td class="d-none">
                                             <button v-if="record.status === 'pending'" @click="showReminder(record)"
                                                 class="btn btn-sm btn-outline-warning">
                                                 <i class="bi bi-bell me-1"></i>提醒签退
@@ -165,7 +179,7 @@
                                                 class="btn btn-sm btn-outline-info">
                                                 <i class="bi bi-eye me-1"></i>查看
                                             </button>
-                                        </td> -->
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -201,9 +215,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { apinodes } from '@/data/apinodes'
-import { showToast } from '@/utils/toast' // 假设有toast工具函数
+import { showToast, toast } from '@/utils/toast'
 
 interface CheckinRecord {
     user_id: number
@@ -228,6 +242,7 @@ const error = ref<string | null>(null)
 const filterStatus = ref('all')
 const currentPage = ref(1)
 const pageSize = 10
+const dismissedAlerts = ref<Set<string>>(new Set())
 
 // 计算属性
 const filteredRecords = computed(() => {
@@ -237,7 +252,7 @@ const filteredRecords = computed(() => {
         filtered = filtered.filter(record => record.status === filterStatus.value)
     }
 
-    return filtered.sort((a, b) => b.checkin_time - a.checkin_time) // 按时间倒序
+    return filtered.sort((a, b) => b.checkin_time - a.checkin_time)
 })
 
 const paginatedRecords = computed(() => {
@@ -260,6 +275,7 @@ const visiblePages = computed(() => {
     return pages
 })
 
+// 统计计算
 const totalCheckins = computed(() => records.value.length)
 const validCheckins = computed(() => records.value.filter(record => record.status === 'valid').length)
 const pendingCheckins = computed(() => records.value.filter(record => record.status === 'pending').length)
@@ -280,6 +296,100 @@ const averageDuration = computed(() => {
     if (validRecords.length === 0) return 0
     return totalDuration.value / validRecords.length
 })
+
+// 最新记录状态检查
+const latestRecord = computed(() => {
+    return records.value.length > 0 ? records.value[0] : null
+})
+
+const hasLongPendingRecord = computed(() => {
+    if (!latestRecord.value || latestRecord.value.status !== 'pending') return false
+
+    const pendingTime = Date.now() - latestRecord.value.checkin_time
+    return pendingTime > 40 * 60 * 1000 // 超过40分钟
+})
+
+const showStatusAlert = computed(() => {
+    if (!latestRecord.value) return false
+
+    const alertKey = `${latestRecord.value.status}_${latestRecord.value.checkin_time}`
+    if (dismissedAlerts.value.has(alertKey)) return false
+
+    return latestRecord.value.status === 'invalid' ||
+        latestRecord.value.status === 'pending' ||
+        hasLongPendingRecord.value
+})
+
+const statusAlertClass = computed(() => {
+    if (latestRecord.value?.status === 'invalid') return 'alert-danger'
+    if (hasLongPendingRecord.value) return 'alert-warning'
+    if (latestRecord.value?.status === 'pending') return 'alert-info'
+    return 'alert-secondary'
+})
+
+const statusAlertIcon = computed(() => {
+    if (latestRecord.value?.status === 'invalid') return 'bi bi-exclamation-triangle'
+    if (hasLongPendingRecord.value) return 'bi bi-clock-history'
+    if (latestRecord.value?.status === 'pending') return 'bi bi-info-circle'
+    return 'bi bi-bell'
+})
+
+const statusAlertTitle = computed(() => {
+    if (latestRecord.value?.status === 'invalid') return '最新记录无效'
+    if (hasLongPendingRecord.value) return '长时间未签退'
+    if (latestRecord.value?.status === 'pending') return '有进行中的打卡'
+    return '状态提醒'
+})
+
+const statusAlertMessage = computed(() => {
+    if (latestRecord.value?.status === 'invalid') {
+        return '您的最新打卡记录被标记为无效，请检查打卡时间或联系管理员。'
+    }
+    if (hasLongPendingRecord.value) {
+        const pendingMinutes = Math.floor((Date.now() - (latestRecord.value?.checkin_time || 0)) / (1000 * 60))
+        return `您已经 ${pendingMinutes} 分钟未签退，请及时签退以避免记录失效。`
+    }
+    if (latestRecord.value?.status === 'pending') {
+        const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
+        return `您有进行中的打卡记录，已持续 ${pendingMinutes} 分钟，请记得签退。`
+    }
+    return ''
+})
+
+// 方法
+const dismissStatusAlert = () => {
+    if (latestRecord.value) {
+        const alertKey = `${latestRecord.value.status}_${latestRecord.value.checkin_time}`
+        dismissedAlerts.value.add(alertKey)
+    }
+}
+
+const checkAndShowStatusToasts = () => {
+    if (!latestRecord.value) return
+
+    // 避免重复提示
+    const alertKey = `toast_${latestRecord.value.status}_${latestRecord.value.checkin_time}`
+    if (sessionStorage.getItem(alertKey)) return
+
+    if (latestRecord.value.status === 'invalid') {
+        toast.warning('您的最新打卡记录被标记为无效，请检查打卡时间。', 8000)
+    } else if (hasLongPendingRecord.value) {
+        const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
+        toast.error(`长时间未签退警告：已持续 ${pendingMinutes} 分钟，请立即签退！`, 10000)
+    } else if (latestRecord.value.status === 'pending') {
+        const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
+        if (pendingMinutes > 10) { // 10分钟以上才提示
+            toast.info(`提醒：您有进行中的打卡，已持续 ${pendingMinutes} 分钟`, 6000)
+        }
+    }
+
+    // 标记为已提示
+    sessionStorage.setItem(alertKey, 'true')
+    // 2小时后清除标记
+    setTimeout(() => {
+        sessionStorage.removeItem(alertKey)
+    }, 2 * 60 * 60 * 1000)
+}
 
 // 获取打卡记录
 const fetchCheckinRecords = async () => {
@@ -303,21 +413,27 @@ const fetchCheckinRecords = async () => {
 
         if (result.success) {
             records.value = result.data.records
-            showToast('success', '打卡记录加载成功')
+            toast.success('打卡记录加载成功', 3000)
+
+            // 检查并显示状态提醒
+            setTimeout(() => {
+                checkAndShowStatusToasts()
+            }, 1000)
+
         } else {
             throw new Error(result.message || '获取打卡记录失败')
         }
     } catch (err) {
         const message = err instanceof Error ? err.message : '未知错误'
         error.value = message
-        showToast('error', `加载失败: ${message}`)
+        toast.error(`加载失败: ${message}`, 5000)
         console.error('获取打卡记录失败:', err)
     } finally {
         loading.value = false
     }
 }
 
-// 格式化时间戳
+// 格式化方法
 const formatTime = (timestamp: number | null): string => {
     if (!timestamp || timestamp === 0) return '-'
     const date = new Date(timestamp)
@@ -331,7 +447,6 @@ const formatTime = (timestamp: number | null): string => {
     })
 }
 
-// 格式化相对时间
 const formatRelativeTime = (timestamp: number): string => {
     const now = Date.now()
     const diff = now - timestamp
@@ -345,7 +460,6 @@ const formatRelativeTime = (timestamp: number): string => {
     return '刚刚'
 }
 
-// 格式化时长（毫秒转小时分钟）
 const formatDuration = (duration: number | null): string => {
     if (!duration || duration === 0) return '-'
     const hours = Math.floor(duration / (1000 * 60 * 60))
@@ -356,7 +470,6 @@ const formatDuration = (duration: number | null): string => {
     return `${minutes}分钟`
 }
 
-// 获取状态样式类
 const getStatusClass = (status: string): string => {
     const classes = {
         'valid': 'bg-success',
@@ -366,7 +479,6 @@ const getStatusClass = (status: string): string => {
     return classes[status as keyof typeof classes] || 'bg-secondary'
 }
 
-// 获取状态图标
 const getStatusIcon = (status: string): string => {
     const icons = {
         'valid': 'bi bi-check-circle',
@@ -376,7 +488,6 @@ const getStatusIcon = (status: string): string => {
     return icons[status as keyof typeof icons] || 'bi bi-question-circle'
 }
 
-// 获取状态文本
 const getStatusText = (status: string): string => {
     const texts = {
         'valid': '有效',
@@ -386,26 +497,23 @@ const getStatusText = (status: string): string => {
     return texts[status as keyof typeof texts] || '未知'
 }
 
-// 显示记录详情
 const showRecordDetail = (record: CheckinRecord) => {
-    // 这里可以显示模态框或跳转到详情页
-    showToast('info', `查看记录详情: ${formatTime(record.checkin_time)}`)
+    toast.info(`查看记录详情: ${formatTime(record.checkin_time)}`, 3000)
 }
 
-// 提醒签退
 const showReminder = (record: CheckinRecord) => {
-    showToast('warning', '请记得及时签退，避免记录失效！', 5000)
+    const pendingMinutes = Math.floor((Date.now() - record.checkin_time) / (1000 * 60))
+    toast.warning(`打卡进行中：已持续 ${pendingMinutes} 分钟，请记得签退！`, 5000)
 }
 
-// 导出记录
 const exportRecords = () => {
-    showToast('info', '导出功能开发中...')
+    toast.info('导出功能开发中...', 3000)
 }
 
 // 监听筛选条件变化重置页码
-// watch(filterStatus, () => {
-//     currentPage.value = 1
-// })
+watch(filterStatus, () => {
+    currentPage.value = 1
+})
 
 // 组件挂载时获取数据
 onMounted(() => {
@@ -429,5 +537,33 @@ onMounted(() => {
 
 .table-active {
     background-color: rgba(255, 193, 7, 0.1);
+}
+
+.alert {
+    border-left: 4px solid;
+}
+
+.alert-danger {
+    border-left-color: #dc3545;
+}
+
+.alert-warning {
+    border-left-color: #ffc107;
+}
+
+.alert-info {
+    border-left-color: #17a2b8;
+}
+
+@media (max-width: 768px) {
+    .hide-below-md {
+        display: none;
+    }
+}
+
+@media (max-width: 992px) {
+    .hide-below-lg {
+        display: none;
+    }
 }
 </style>
