@@ -36,7 +36,7 @@
                         </div>
 
                         <!-- 动态组件切换 -->
-                        <component :is="currentComponent" />
+                        <component :user="user" :is="currentComponent" />
                     </div>
                 </div>
             </div>

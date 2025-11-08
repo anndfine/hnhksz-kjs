@@ -3,23 +3,31 @@
     <div class="card border-0 shadow-sm h-100">
         <div class="card-body text-center p-4">
             <div class="avatar-container mb-3">
-                <img src="https://cn1.anndfine.top/downloadfiles/fduXdSy_KD0" alt="头像"
-                    class="rounded-circle avatar-img">
+                <img :src="user?.avatar || 'https://cn1.anndfine.top/downloadfiles/kjcxs:avatar:avatar_default'"
+                    alt="头像" class="rounded-circle avatar-img">
                 <button class="btn btn-sm btn-primary avatar-edit-btn">
                     <i class="bi bi-camera"></i>
                 </button>
             </div>
-            <h4 class="fw-bold">{{ profile.name }}</h4>
-            <p class="text-muted">{{ profile.role }}</p>
+            <h4 class="fw-bold">{{ user?.name || '用户' }}</h4>
+            <p class="text-muted">{{ user?.role || '角色' }}</p>
             <div class="d-flex justify-content-center gap-2">
-                <span class="badge bg-primary">{{ profile.department }}</span>
-                <span class="badge bg-success">{{ profile.status }}</span>
+                <span class="badge bg-primary">{{ user?.department || '部门' }}</span>
+                <span class="badge bg-success">{{ user?.status || '状态' }}</span>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+interface user {
+    id?: number
+    name?: string
+    avatar?: string
+    role?: string
+    department?: string
+    status?: string
+}
 defineProps<{
     profile: {
         name: string
@@ -27,6 +35,7 @@ defineProps<{
         department: string
         status: string
     }
+    user: user | null
 }>()
 </script>
 
