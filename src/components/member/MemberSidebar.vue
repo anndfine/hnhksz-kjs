@@ -2,6 +2,7 @@
 <template>
     <aside class="member-sidebar" :class="{ 'collapsed': isCollapsed }">
         <!-- 侧边栏头部 -->
+
         <div class="sidebar-header d-lg-flex d-none">
             <div class="brand" v-if="!isCollapsed">
                 <i class="bi bi-person-circle me-2"></i>
@@ -15,6 +16,18 @@
             </button>
         </div>
 
+        <!-- 侧边栏底部 -->
+        <div class="sidebar-footer d-lg-flex d-none" v-if="!isCollapsed">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img src="https://picsum.photos/seed/member-avatar/40/40.jpg" alt="用户头像">
+                </div>
+                <div class="user-details">
+                    <div class="user-name">张三</div>
+                    <div class="user-role">社团成员</div>
+                </div>
+            </div>
+        </div>
         <!-- 导航菜单 -->
         <nav class="sidebar-nav">
             <ul class="nav-list">
@@ -29,18 +42,6 @@
             </ul>
         </nav>
 
-        <!-- 侧边栏底部 -->
-        <div class="sidebar-footer" v-if="!isCollapsed">
-            <div class="user-info">
-                <div class="user-avatar">
-                    <img src="https://picsum.photos/seed/member-avatar/40/40.jpg" alt="用户头像">
-                </div>
-                <div class="user-details">
-                    <div class="user-name">张三</div>
-                    <div class="user-role">社团成员</div>
-                </div>
-            </div>
-        </div>
     </aside>
 </template>
 

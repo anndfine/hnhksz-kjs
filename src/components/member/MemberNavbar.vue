@@ -22,13 +22,13 @@
             </div>
 
             <!-- 用户菜单 -->
-            <div class="navbar-nav d-none ms-auto">
+            <div class="navbar-nav d-flex d-lg-none ms-auto">
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
                         data-bs-toggle="dropdown">
                         <img src="https://cn1.anndfine.top/downloadfiles/fduXdSy_KD0" alt="用户头像"
                             class="rounded-circle me-2" style="width: 32px; height: 32px;">
-                        <span class="d-none d-md-inline">张三</span>
+                        <span class="d-none d-sm-inline">张三</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
