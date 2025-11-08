@@ -2,7 +2,7 @@
 <template>
     <aside class="member-sidebar" :class="{ 'collapsed': isCollapsed }">
         <!-- 侧边栏头部 -->
-        <div class="sidebar-header">
+        <div class="sidebar-header d-lg-flex d-none">
             <div class="brand" v-if="!isCollapsed">
                 <i class="bi bi-person-circle me-2"></i>
                 <span class="brand-text">成员系统</span>
@@ -74,6 +74,7 @@ const tabs: Tab[] = [
 
 <style scoped>
 .member-sidebar {
+    max-height: calc(100vh - 60px);
     width: 250px;
     height: 100vh;
     background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
@@ -265,6 +266,13 @@ const tabs: Tab[] = [
 
     .brand-text {
         font-size: 1rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .member-sidebar {
+        top: 0px;
+        max-height: calc(100vh - 0px);
     }
 }
 </style>

@@ -1,6 +1,6 @@
 <!-- src/components/member/MemberNavbar.vue -->
 <template>
-    <nav class="member-navbar navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+    <nav class="member-navbar navbar navbar-expand-lg navbar-dark bg-primary fixed-top d-flex d-lg-none">
         <div class="container-fluid">
             <!-- 移动端菜单按钮和品牌 -->
             <div class="d-flex align-items-center">
@@ -22,7 +22,7 @@
             </div>
 
             <!-- 用户菜单 -->
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav d-none ms-auto">
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
                         data-bs-toggle="dropdown">
