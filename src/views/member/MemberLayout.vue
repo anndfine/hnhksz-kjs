@@ -24,7 +24,7 @@
             <div class="main-container">
                 <!-- 侧边栏 -->
                 <MemberSidebar :active-tab="activeTab" :is-collapsed="isSidebarCollapsed" @tab-change="handleTabChange"
-                    @toggle="toggleSidebar" />
+                    :user="user" @toggle="toggleSidebar" />
 
                 <!-- 主要内容区域 -->
                 <div class="main-content" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">

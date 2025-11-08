@@ -130,15 +130,15 @@ const members = ref<Member[]>([
     avatarBgColor: 'bg-success',
     graduationYear: 2027
   },
-  // {
-  //   name: '王芳',
-  //   position: '项目组长',
-  //   description: '热爱3D建模与创意设计',
-  //   skills: ['3D建模', '设计'],
-  //   avatar: 'https://example.com/avatars/wangfang.jpg',
-  //   avatarBgColor: 'bg-warning',
-  //   graduationYear: 2027
-  // },
+  {
+    name: '王芳',
+    position: '项目组长',
+    description: '热爱3D建模与创意设计',
+    skills: ['3D建模', '设计'],
+    avatar: 'https://example.com/avatars/wangfang.jpg',
+    avatarBgColor: 'bg-secondary',
+    graduationYear: 2027
+  },
   // {
   //   name: '陈伟',
   //   position: '开发组长',

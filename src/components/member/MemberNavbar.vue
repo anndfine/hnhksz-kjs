@@ -26,11 +26,11 @@
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center py-1" href="#" role="button"
                         data-bs-toggle="dropdown" data-bs-display="static">
-                        <img src="https://cn1.anndfine.top/downloadfiles/fduXdSy_KD0" alt="用户头像"
-                            class="rounded-circle me-2" style="width: 32px; height: 32px;">
-                        <span class="d-none d-md-inline">张三</span>
+                        <img :src="user?.avatar || 'https://cn1.anndfine.top/downloadfiles/kjcxs:avatar:avatar_default'"
+                            alt="用户头像" class="rounded-circle me-2" style="width: 32px; height: 32px;">
+                        <span class="">{{ user?.name || '加载失败' }}</span>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class=" dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item" href="#" @click.prevent="switchToProfile">
                                 <i class="bi bi-person me-2"></i>个人资料
@@ -58,8 +58,13 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-
+interface user {
+    id?: number
+    name?: string
+    avatar?: string
+}
 interface Props {
+    user?: user | null
     isSidebarCollapsed?: boolean
 }
 

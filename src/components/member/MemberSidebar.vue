@@ -17,20 +17,25 @@
         </div>
 
         <!-- 侧边栏底部 -->
-        <div class="sidebar-footer d-lg-flex d-none" v-if="!isCollapsed">
-            <div class="user-info">
-                <div class="user-avatar">
-                    <img src="https://picsum.photos/seed/member-avatar/40/40.jpg" alt="用户头像">
+        <li class="nav-item nav-list">
+            <a href="#" class="sidebar-footer d-lg-flex d-none nav-link" v-if="!isCollapsed"
+                @click.prevent="$emit('tabChange', 'profile')">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <img :src="user?.avatar || 'https://cn1.anndfine.top/downloadfiles/kjcxs:avatar:avatar_default'"
+                            alt="用户头像">
+                    </div>
+                    <div class="user-details">
+                        <div class="user-name">{{ user?.name || '加载中...' }}</div>
+                        <div class="user-role">{{ user?.role || '社团成员' }}</div>
+                    </div>
                 </div>
-                <div class="user-details">
-                    <div class="user-name">张三</div>
-                    <div class="user-role">社团成员</div>
-                </div>
-            </div>
-        </div>
+            </a>
+        </li>
         <!-- 导航菜单 -->
         <nav class="sidebar-nav">
             <ul class="nav-list">
+
                 <li v-for="tab in tabs" :key="tab.id" class="nav-item">
                     <a href="#" class="nav-link" :class="{ 'active': activeTab === tab.id }"
                         @click.prevent="$emit('tabChange', tab.id)">
@@ -51,10 +56,16 @@ interface Tab {
     name: string
     icon: string
 }
-
+interface user {
+    id?: number
+    name?: string
+    avatar?: string
+    role?: string
+}
 defineProps<{
     activeTab: string
     isCollapsed: boolean
+    user: user | null
 }>()
 
 defineEmits<{
