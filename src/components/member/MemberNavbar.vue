@@ -1,6 +1,6 @@
 <!-- src/components/member/MemberNavbar.vue -->
 <template>
-    <nav class="member-navbar navbar navbar-expand-lg navbar-dark bg-primary fixed-top d-flex d-lg-none">
+    <nav class="member-navbar navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
         <div class="container-fluid">
             <!-- 移动端菜单按钮和品牌 -->
             <div class="d-flex align-items-center">
@@ -10,25 +10,25 @@
 
                 <a class="navbar-brand fw-bold d-lg-none" href="#">
                     <i class="bi bi-person-circle me-2"></i>
-                    <span class="d-none d-sm-inline">成员系统</span>
+                    <span>成员系统</span>
                 </a>
             </div>
 
-            <!-- 桌面端页面标题 -->
+            <!-- 桌面端页面标题 - 修正显示逻辑 -->
             <div class="navbar-nav d-none d-lg-flex mx-auto">
-                <span class="nav-text text-white fw-semibold d-none">
+                <span class="nav-text text-white fw-semibold">
                     {{ currentPageTitle }}
                 </span>
             </div>
 
-            <!-- 用户菜单 -->
-            <div class="navbar-nav d-flex d-lg-none ms-auto">
+            <!-- 用户菜单 - 修正显示逻辑和下拉菜单定位 -->
+            <div class="navbar-nav ms-auto">
                 <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
-                        data-bs-toggle="dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center py-1" href="#" role="button"
+                        data-bs-toggle="dropdown" data-bs-display="static">
                         <img src="https://cn1.anndfine.top/downloadfiles/fduXdSy_KD0" alt="用户头像"
                             class="rounded-circle me-2" style="width: 32px; height: 32px;">
-                        <span class="d-none d-sm-inline">张三</span>
+                        <span class="d-none d-md-inline">张三</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
@@ -98,6 +98,7 @@ const switchToSettings = () => {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     height: 60px;
     z-index: 1030;
+    min-height: 60px;
 }
 
 .navbar-brand {
@@ -121,16 +122,21 @@ const switchToSettings = () => {
 .nav-link.dropdown-toggle {
     color: rgba(255, 255, 255, 0.9);
     transition: color 0.3s ease;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 
 .nav-link.dropdown-toggle:hover {
     color: white;
 }
 
+/* 修复下拉菜单定位 */
 .dropdown-menu {
     border: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
+    position: absolute;
+    z-index: 1031;
 }
 
 .dropdown-item {
@@ -144,14 +150,41 @@ const switchToSettings = () => {
     background-color: #f8f9fa;
 }
 
+/* 确保容器有正确的定位上下文 */
+.navbar-nav .dropdown {
+    position: static;
+}
+
 /* 响应式调整 */
-@media (max-width: 767.98px) {
-    .navbar-brand span {
-        display: inline !important;
+@media (max-width: 991.98px) {
+    .member-navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+
+    /* 在移动端确保用户菜单正常显示 */
+    .navbar-nav.ms-auto {
+        margin-left: auto !important;
     }
 
     .nav-text {
-        display: none;
+        display: none !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .member-navbar {
+        display: none !important;
+    }
+}
+
+
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .navbar-brand span {
+        display: inline !important;
     }
 }
 </style>

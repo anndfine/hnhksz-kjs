@@ -18,7 +18,7 @@
         <div v-else class="main-layout">
             <!-- 顶部导航栏 -->
             <MemberNavbar :is-sidebar-collapsed="isSidebarCollapsed" :user="user" @toggle-sidebar="toggleSidebar"
-                @logout="handleLogout" />
+                @tab-change="handleTabChange" @logout="handleLogout" />
 
             <!-- 侧边栏和内容区域容器 -->
             <div class="main-container">
@@ -30,7 +30,7 @@
                 <div class="main-content" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
                     <div class="content-wrapper">
                         <!-- 页面标题栏 -->
-                        <div class="page-header mb-4">
+                        <div class="page-header mb-4 d-lg-none">
                             <!-- <h1 class="page-title">{{ pageTitles[activeTab] }}</h1>
                             <p class="page-subtitle text-muted">{{ pageSubtitles[activeTab] }}</p> -->
                         </div>
