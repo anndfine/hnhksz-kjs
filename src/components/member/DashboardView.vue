@@ -191,7 +191,7 @@
                     </div>
                 </div>
                 <!-- 最新消息提醒 -->
-                <div class="card border-0 shadow-sm mb-4">
+                <div class="card border-0 shadow-sm mb-4 d-none">
                     <div class="card-header bg-transparent border-0 pb-0">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">
@@ -293,9 +293,9 @@ const checkinLoading = ref(false)
 // 统计数据
 const stats = ref({
     todayAttendance: 0, // 将从打卡数据计算
-    onlineDevices: 8,
-    activeProjects: 3,
-    unreadNotifications: 5
+    onlineDevices: 0,
+    activeProjects: 0,
+    unreadNotifications: 0
 })
 
 // 今日打卡统计计算
@@ -351,10 +351,11 @@ const todos = ref([
 
 // 设备状态
 const devices = ref([
-    { id: 1, name: '温湿度传感器', type: '环境监测', status: '在线', icon: 'bi bi-thermometer' },
+    { id: 0, name: 'VL-C7A-Linux-Linux', type: '服务器节点', status: '在线', icon: 'bi bi-server' },
+    { id: 1, name: '温湿度传感器', type: '环境监测', status: '离线', icon: 'bi bi-thermometer' },
     { id: 2, name: '智能LED控制器', type: '照明控制', status: '离线', icon: 'bi bi-lightbulb' },
-    { id: 3, name: 'Arduino主控板', type: '核心控制', status: '在线', icon: 'bi bi-motherboard' },
-    { id: 4, name: 'OLED显示屏', type: '信息显示', status: '在线', icon: 'bi bi-display' }
+    { id: 3, name: 'Arduino主控板', type: '核心控制', status: '离线', icon: 'bi bi-motherboard' },
+    { id: 4, name: 'OLED显示屏', type: '信息显示', status: '离线', icon: 'bi bi-display' }
 ])
 
 // 消息通知
