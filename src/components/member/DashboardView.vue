@@ -258,14 +258,88 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { apinodes } from '@/data/apinodes'
+import toast, { showToast } from '@/utils/toast'
+import {
+    getCheckinData,
+    getTodayCheckinCount,
+    getTodayDuration,
+    hasCachedData,
+    isLoading
+} from '@/components/member/attendanceService.ts'
+
+// 打卡数据接口
+interface CheckinRecord {
+    user_id: number
+    status: 'valid' | 'invalid' | 'pending'
+    checkin_time: number
+    checkout_time: number | null
+    duration: number | null
+}
+
+interface CheckinResponse {
+    success: boolean
+    message: string
+    data: {
+        records: CheckinRecord[]
+    }
+    time: number
+}
+
+// 打卡数据
+const checkinRecords = ref<CheckinRecord[]>([])
+const checkinLoading = ref(false)
 
 // 统计数据
 const stats = ref({
-    todayAttendance: 1,
+    todayAttendance: 0, // 将从打卡数据计算
     onlineDevices: 8,
     activeProjects: 3,
     unreadNotifications: 5
 })
+
+// 今日打卡统计计算
+const todayCheckinStats = computed(() => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayTimestamp = today.getTime()
+
+    const todayRecords = checkinRecords.value.filter(record => {
+        const recordDate = new Date(record.checkin_time)
+        recordDate.setHours(0, 0, 0, 0)
+        return recordDate.getTime() === todayTimestamp
+    })
+
+    const todayValidRecords = todayRecords.filter(record => record.status === 'valid')
+    const totalDuration = todayValidRecords.reduce((total, record) => total + (record.duration || 0), 0)
+
+    return {
+        todayCheckinCount: todayRecords.length,
+        todayValidDuration: totalDuration,
+        hasPendingCheckin: todayRecords.some(record => record.status === 'pending')
+    }
+})
+
+// 获取打卡数据
+const fetchCheckinData = async (forceRefresh: boolean = false) => {
+    try {
+        await getCheckinData(forceRefresh)
+        // 更新今日打卡次数显示
+        stats.value.todayAttendance = getTodayCheckinCount()
+    } catch (err) {
+        const message = err instanceof Error ? err.message : '未知错误'
+        console.error('获取打卡数据失败:', err)
+        // 静默失败，不影响Dashboard其他功能
+    }
+}
+
+// 刷新数据（供外部调用）
+const refreshCheckinData = () => {
+    getCheckinData(true).then(() => {
+        stats.value.todayAttendance = getTodayCheckinCount()
+    })
+}
+
 
 // 待办事项
 const todos = ref([
@@ -303,6 +377,7 @@ const recentActivities = ref([
 const quickActions = ref([
     // { id: 'checkin', name: '立即打卡', icon: 'bi bi-check-circle' },
     // { id: 'addDevice', name: '添加设备', icon: 'bi bi-plus-circle' },
+    { id: 'refreshCheckin', name: '刷新打卡', icon: 'bi bi-arrow-clockwise' },
     { id: 'newProject', name: '新建项目', icon: 'bi bi-plus-lg' },
     { id: 'report', name: '问题反馈', icon: 'bi bi-bug' }
 ])
@@ -342,6 +417,43 @@ const announcements = ref([
     // }
 ])
 
+// 组件挂载时获取数据
+onMounted(() => {
+    // 如果有缓存数据，直接使用，否则获取新数据
+    if (!hasCachedData()) {
+        showToast('info', 'DashboardView 已加载')
+        fetchCheckinData(true)
+    } else {
+        stats.value.todayAttendance = getTodayCheckinCount()
+    }
+})
+
+// 快速操作处理
+const handleQuickAction = (actionId: string) => {
+    switch (actionId) {
+        case 'refreshCheckin':
+            refreshCheckinData()
+            break
+        case 'newProject':
+            showToast("info", '功能开发中...')
+            break
+        case 'report':
+            showToast('info', '功能开发中...')
+            break
+    }
+}
+
+// 标记通知为已读
+const markAsRead = (notificationId: number) => {
+    const notification = notifications.value.find(n => n.id === notificationId)
+    if (notification) {
+        notification.read = true
+        showToast('success', '标记为已读')
+    }
+}
+
+// 获取优先级徽章类
+
 // 计算属性
 const unreadNotifications = computed(() => notifications.value.filter(n => !n.read))
 
@@ -355,42 +467,26 @@ const getPriorityBadgeClass = (priority: string) => {
     }
 }
 
+// 获取公告类型类
 const getAnnouncementTypeClass = (type: string) => {
     switch (type) {
         case '重要': return 'bg-danger'
         case '通知': return 'bg-primary'
         case '安排': return 'bg-success'
+        case '通知': return 'bg-info'
+        case '更新': return 'bg-success'
         default: return 'bg-secondary'
     }
 }
 
-const markAsRead = (id: number) => {
-    const notification = notifications.value.find(n => n.id === id)
-    if (notification) {
-        notification.read = true
-        stats.value.unreadNotifications--
-    }
-}
 
-const handleQuickAction = (actionId: string) => {
-    switch (actionId) {
-        case 'checkin':
-            console.log('执行打卡操作')
-            break
-        case 'addDevice':
-            console.log('打开添加设备模态框')
-            break
-        case 'newProject':
-            console.log('创建新项目')
-            break
-        case 'report':
-            console.log('提交问题反馈')
-            break
-    }
-}
 
-onMounted(() => {
-    console.log('DashboardView 已加载')
+
+
+// 暴露方法供外部调用
+defineExpose({
+    refreshCheckinData,
+    getTodayDuration
 })
 </script>
 

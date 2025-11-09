@@ -8,7 +8,7 @@ let toastApp: App<Element> | null = null
 let toastInstance: any = null
 
 // 初始化Toast
-const initToast = () => {
+export const initToast = () => {
     if (!toastApp) {
         const toastContainer = document.createElement('div')
         toastContainer.id = 'toast-global-container'
@@ -49,7 +49,8 @@ export const toast = {
     warning: (message: string, duration?: number) => showToast('warning', message, duration),
     info: (message: string, duration?: number) => showToast('info', message, duration),
     remove: removeToast,
-    clear: clearToasts
+    clear: clearToasts,
+    initToast: initToast
 }
 
 export default toast

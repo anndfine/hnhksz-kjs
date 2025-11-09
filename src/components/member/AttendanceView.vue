@@ -9,7 +9,7 @@
 
         <!-- 统计信息卡片 -->
         <div class="row mb-4">
-            <div class="col-md-3 mb-3">
+            <div class="col mb-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
                         <h3 class="text-primary mb-2">{{ totalCheckins }}</h3>
@@ -17,7 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col mb-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
                         <h3 class="text-success mb-2">{{ validCheckins }}</h3>
@@ -25,7 +25,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col mb-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
                         <h3 class="text-info mb-2">{{ validCheckinRate }}%</h3>
@@ -33,7 +33,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col mb-3">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-body text-center">
                         <h3 class="text-warning mb-2">{{ pendingCheckins }}</h3>
@@ -81,7 +81,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="d-flex gap-2 flex-wrap">
-                    <button @click="fetchCheckinRecords" class="btn btn-outline-primary" :disabled="loading">
+                    <button @click="callupdateCheckin" class="btn btn-outline-primary" :disabled="loading">
                         <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
                         {{ loading ? '刷新中...' : '刷新记录' }}
                     </button>
@@ -118,7 +118,7 @@
                         <div v-else-if="error" class="alert alert-danger" role="alert">
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             {{ error }}
-                            <button @click="fetchCheckinRecords" class="btn btn-sm btn-outline-danger ms-2">重试</button>
+                            <button @click="callupdateCheckin" class="btn btn-sm btn-outline-danger ms-2">重试</button>
                         </div>
                         <div v-else-if="records.length === 0" class="text-center py-5 text-muted">
                             <i class="bi bi-clock-history display-4 d-block mb-3"></i>
@@ -147,7 +147,7 @@
                                         <td>
                                             <div>{{ formatTime(record.checkin_time) }}</div>
                                             <small class="text-muted">{{ formatRelativeTime(record.checkin_time)
-                                                }}</small>
+                                            }}</small>
                                         </td>
                                         <td class="hide-below-lg">
                                             <div>{{ formatTime(record.checkout_time) }}</div>
@@ -216,25 +216,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { apinodes } from '@/data/apinodes'
-import { showToast, toast } from '@/utils/toast'
-
-interface CheckinRecord {
-    user_id: number
-    status: 'valid' | 'invalid' | 'pending'
-    checkin_time: number
-    checkout_time: number | null
-    duration: number | null
-}
-
-interface CheckinResponse {
-    success: boolean
-    message: string
-    data: {
-        records: CheckinRecord[]
-    }
-    time: number
-}
+import { toast } from '@/utils/toast'
+import {
+    getCheckinData,
+    formatDuration,
+    getTotalStats,
+    isLoading,
+    type CheckinRecord
+} from './attendanceService'
 
 const records = ref<CheckinRecord[]>([])
 const loading = ref(false)
@@ -275,27 +264,14 @@ const visiblePages = computed(() => {
     return pages
 })
 
-// 统计计算
-const totalCheckins = computed(() => records.value.length)
-const validCheckins = computed(() => records.value.filter(record => record.status === 'valid').length)
-const pendingCheckins = computed(() => records.value.filter(record => record.status === 'pending').length)
-const validCheckinRate = computed(() => {
-    const total = records.value.length
-    if (total === 0) return 0
-    return Math.round((validCheckins.value / total) * 100)
-})
-
-const totalDuration = computed(() => {
-    return records.value
-        .filter(record => record.status === 'valid' && record.duration)
-        .reduce((total, record) => total + (record.duration || 0), 0)
-})
-
-const averageDuration = computed(() => {
-    const validRecords = records.value.filter(record => record.status === 'valid' && record.duration)
-    if (validRecords.length === 0) return 0
-    return totalDuration.value / validRecords.length
-})
+// 使用服务中的统计计算
+const totalStats = computed(() => getTotalStats())
+const totalCheckins = computed(() => totalStats.value.totalCheckins)
+const validCheckins = computed(() => totalStats.value.validCheckins)
+const pendingCheckins = computed(() => totalStats.value.pendingCheckins)
+const validCheckinRate = computed(() => totalStats.value.validCheckinRate)
+const totalDuration = computed(() => totalStats.value.totalDuration)
+const averageDuration = computed(() => totalStats.value.averageDuration)
 
 // 最新记录状态检查
 const latestRecord = computed(() => {
@@ -343,15 +319,15 @@ const statusAlertTitle = computed(() => {
 
 const statusAlertMessage = computed(() => {
     if (latestRecord.value?.status === 'invalid') {
-        return '您的最新打卡记录被标记为无效，请检查打卡时间或联系管理员。'
+        return '最新打卡记录被系统标记为无效，请检查打卡时间。有疑问请联系管理员。'
     }
     if (hasLongPendingRecord.value) {
         const pendingMinutes = Math.floor((Date.now() - (latestRecord.value?.checkin_time || 0)) / (1000 * 60))
-        return `您已经 ${pendingMinutes} 分钟未签退，请及时签退以避免记录失效。`
+        return `已经 ${pendingMinutes} 分钟未签退，请及时签退以避免记录失效。`
     }
     if (latestRecord.value?.status === 'pending') {
         const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
-        return `您有进行中的打卡记录，已持续 ${pendingMinutes} 分钟，请记得签退。`
+        return `进行中的打卡记录，已持续 ${pendingMinutes} 分钟，请记得签退。`
     }
     return ''
 })
@@ -372,14 +348,14 @@ const checkAndShowStatusToasts = () => {
     if (sessionStorage.getItem(alertKey)) return
 
     if (latestRecord.value.status === 'invalid') {
-        toast.warning('您的最新打卡记录被标记为无效，请检查打卡时间。', 8000)
+        toast.warning('最新打卡记录被标记为无效，请检查打卡时间。', 8000)
     } else if (hasLongPendingRecord.value) {
         const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
-        toast.error(`长时间未签退警告：已持续 ${pendingMinutes} 分钟，请立即签退！`, 10000)
+        toast.error(`长时间未签退警告：已持续 ${pendingMinutes} 分钟，未及时签退将导致记录无效！`, 10000)
     } else if (latestRecord.value.status === 'pending') {
         const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
         if (pendingMinutes > 10) { // 10分钟以上才提示
-            toast.info(`提醒：您有进行中的打卡，已持续 ${pendingMinutes} 分钟`, 6000)
+            toast.info(`提醒：进行中的打卡，已持续 ${pendingMinutes} 分钟`, 6000)
         }
     }
 
@@ -391,46 +367,48 @@ const checkAndShowStatusToasts = () => {
     }, 2 * 60 * 60 * 1000)
 }
 
+// 更新打卡记录状态
+const callupdateCheckin = async () => {
+    loading.value = false
+    try {
+        toast.info('更新打卡记录...', 3000)
+        loading.value = true
+        // 刷新记录列表
+        await getCheckinData(true)
+        await fetchCheckinRecords()
+        // toast.success('打卡记录已更新', 3000)
+        loading.value = false
+    } catch (err) {
+        toast.error('更新失败，请稍后重试', 3000)
+        loading.value = false
+    }
+}
+
 // 获取打卡记录
 const fetchCheckinRecords = async () => {
-    loading.value = true
     error.value = null
 
     try {
-        const response = await fetch(`${apinodes[0]!.domain}/api/checkin/mine`, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        loading.value = true
+        const data = await getCheckinData()
+        records.value = data
 
-        if (!response.ok) {
-            throw new Error('获取打卡记录失败')
-        }
+        // 检查并显示状态提醒
+        setTimeout(() => {
+            checkAndShowStatusToasts()
+        }, 1000)
+        loading.value = false
 
-        const result: CheckinResponse = await response.json()
-
-        if (result.success) {
-            records.value = result.data.records
-            toast.success('打卡记录加载成功', 3000)
-
-            // 检查并显示状态提醒
-            setTimeout(() => {
-                checkAndShowStatusToasts()
-            }, 1000)
-
-        } else {
-            throw new Error(result.message || '获取打卡记录失败')
-        }
     } catch (err) {
         const message = err instanceof Error ? err.message : '未知错误'
         error.value = message
-        toast.error(`加载失败: ${message}`, 5000)
         console.error('获取打卡记录失败:', err)
-    } finally {
-        loading.value = false
     }
+}
+
+// 导出记录
+const exportRecords = () => {
+    toast.info('导出功能开发中...', 3000)
 }
 
 // 格式化方法
@@ -460,64 +438,49 @@ const formatRelativeTime = (timestamp: number): string => {
     return '刚刚'
 }
 
-const formatDuration = (duration: number | null): string => {
-    if (!duration || duration === 0) return '-'
-    const hours = Math.floor(duration / (1000 * 60 * 60))
-    const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60))
-    if (hours > 0) {
-        return `${hours}小时${minutes}分钟`
+const getStatusClass = (status: string) => {
+    switch (status) {
+        case 'valid': return 'bg-success'
+        case 'invalid': return 'bg-danger'
+        case 'pending': return 'bg-warning'
+        default: return 'bg-secondary'
     }
-    return `${minutes}分钟`
 }
 
-const getStatusClass = (status: string): string => {
-    const classes = {
-        'valid': 'bg-success',
-        'invalid': 'bg-danger',
-        'pending': 'bg-warning'
+const getStatusIcon = (status: string) => {
+    switch (status) {
+        case 'valid': return 'bi bi-check-circle'
+        case 'invalid': return 'bi bi-x-circle'
+        case 'pending': return 'bi bi-clock'
+        default: return 'bi bi-question-circle'
     }
-    return classes[status as keyof typeof classes] || 'bg-secondary'
 }
 
-const getStatusIcon = (status: string): string => {
-    const icons = {
-        'valid': 'bi bi-check-circle',
-        'invalid': 'bi bi-x-circle',
-        'pending': 'bi bi-clock'
+const getStatusText = (status: string) => {
+    switch (status) {
+        case 'valid': return '有效'
+        case 'invalid': return '无效'
+        case 'pending': return '进行中'
+        default: return status
     }
-    return icons[status as keyof typeof icons] || 'bi bi-question-circle'
-}
-
-const getStatusText = (status: string): string => {
-    const texts = {
-        'valid': '有效',
-        'invalid': '无效',
-        'pending': '进行中'
-    }
-    return texts[status as keyof typeof texts] || '未知'
-}
-
-const showRecordDetail = (record: CheckinRecord) => {
-    toast.info(`查看记录详情: ${formatTime(record.checkin_time)}`, 3000)
 }
 
 const showReminder = (record: CheckinRecord) => {
-    const pendingMinutes = Math.floor((Date.now() - record.checkin_time) / (1000 * 60))
-    toast.warning(`打卡进行中：已持续 ${pendingMinutes} 分钟，请记得签退！`, 5000)
+    toast.info('提醒功能开发中...', 3000)
 }
 
-const exportRecords = () => {
-    toast.info('导出功能开发中...', 3000)
+const showRecordDetail = (record: CheckinRecord) => {
+    toast.info('详情功能开发中...', 3000)
 }
-
-// 监听筛选条件变化重置页码
-watch(filterStatus, () => {
-    currentPage.value = 1
-})
 
 // 组件挂载时获取数据
 onMounted(() => {
     fetchCheckinRecords()
+})
+
+// 监听过滤状态变化，重置页码
+watch(filterStatus, () => {
+    currentPage.value = 1
 })
 </script>
 

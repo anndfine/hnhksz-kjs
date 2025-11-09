@@ -3,10 +3,7 @@
     <div>
         <Navbar />
         <main>
-
-            <div class="help-page">
-                <HowToUseGithub />
-            </div>
+            <HelpContents />
         </main>
         <Footer />
     </div>
@@ -15,5 +12,5 @@
 
 import Navbar from "@/components/Layout/Navbar.vue"
 import Footer from '@/components/Layout/Footer.vue'
-import HowToUseGithub from '@/views/helps/how-to-use-github.vue'
+import HelpContents from '@/views/helps/contents.vue'
 </script>

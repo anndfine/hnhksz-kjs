@@ -4,10 +4,10 @@
 
         <div class="row">
             <div class="col-lg-8">
-                <!-- GitHub 基础使用 -->
+                <!-- 使用 Github 反馈问题 -->
                 <div class="card mb-3">
                     <div class="card-header bg-light">
-                        <h5 class="mb-0">📖 GitHub 基础操作</h5>
+                        <h5 class="mb-0">🐛 使用 GitHub 反馈问题</h5>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-warning border mb-4">
@@ -54,10 +54,13 @@
                                 <div class="alert alert-warning border mb-3">
                                     <strong class="d-block mb-2">🔖 如何选择Labels?</strong>
                                     <ul class="mb-0">
-                                        <li><strong>Bug</strong> - 报告问题或错误</li>
-                                        <li><strong>Enhancement</strong> - 建议改进或新功能</li>
-                                        <li><strong>Feature</strong> - 新功能建议</li>
-                                        <li><strong>Documentation</strong> - 文档改进建议</li>
+                                        <li><i class="bi bi-bug-fill me-2"></i><strong>Bug</strong> - 报告问题或错误</li>
+                                        <li><i class="bi bi-lightbulb-fill me-2"></i><strong>Enhancement</strong> -
+                                            建议改进或新功能</li>
+                                        <li><i class="bi bi-gear-fill me-2"></i><strong>Feature</strong> - 新功能建议</li>
+                                        <li><i
+                                                class="bi bi-file-earmark-text-fill me-2"></i><strong>Documentation</strong>
+                                            - 文档改进建议</li>
                                     </ul>
                                 </div>
                             </div>
