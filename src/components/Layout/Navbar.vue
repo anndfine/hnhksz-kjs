@@ -2,7 +2,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
     <div class="container">
-      <a class="navbar-brand fw-bold" href="#">
+      <a class="navbar-brand fw-bold" href="/#">
         <i class="bi bi-cpu-fill me-2"></i>
         海口市第四中学展翼科技社
       </a>
