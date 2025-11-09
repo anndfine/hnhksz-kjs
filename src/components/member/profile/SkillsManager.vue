@@ -1,6 +1,6 @@
 <!-- src/components/member/profile/SkillsManager.vue -->
 <template>
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm d-none">
         <div class="card-body p-4">
             <h5 class="card-title fw-bold mb-4">技能标签</h5>
             <div class="d-flex flex-wrap gap-2 mb-3">

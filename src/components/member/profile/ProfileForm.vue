@@ -19,13 +19,12 @@
                         <label for="email" class="form-label">邮箱</label>
                         <input type="email" class="form-control" id="email" v-model="profile.email">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 d-none">
                         <label for="phone" class="form-label">电话</label>
                         <input type="tel" class="form-control" id="phone" v-model="profile.phone">
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
+
+                    <div class="col-md-6 d-none">
                         <label for="joinDate" class="form-label">加入时间</label>
                         <input type="date" class="form-control" id="joinDate" v-model="profile.joinDate" readonly>
                     </div>
@@ -38,12 +37,14 @@
                         </select>
                     </div>
                 </div>
+                <div class="row mb-3">
+                </div>
                 <div class="mb-3">
-                    <label for="bio" class="form-label">个人简介</label>
-                    <textarea class="form-control" id="bio" rows="3" v-model="profile.bio"></textarea>
+                    <label for="bio" class="form-label">个人简介<small class="text-muted">（可选，会在主页展示）</small></label>
+                    <textarea class="form-control disabled" id="bio" rows="3" v-model="profile.bio"></textarea>
                 </div>
                 <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">保存信息</button>
+                    <button type="submit" class="btn btn-primary disabled" :disabled="!profile.bio">保存信息</button>
                 </div>
             </form>
         </div>

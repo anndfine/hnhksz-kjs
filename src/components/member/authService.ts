@@ -102,13 +102,15 @@ export async function fetchUserInfo(): Promise<AuthResponse> {
 /**
  * 登出
  */
-export async function performLogout(): Promise<void> {
+export async function performLogout(): Promise<boolean> {
     try {
-        await fetch('/api/auth/logout', {
+        await fetch(`${apinodes[0]!.domain}/api/auth/logout`, {
             method: 'POST',
             credentials: 'include'
         })
+        return true
     } catch (error) {
         console.error('登出失败:', error)
+        return false
     }
 }

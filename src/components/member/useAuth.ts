@@ -89,7 +89,7 @@ export function useAuth() {
 
     // 登出
     const logout = async (): Promise<void> => {
-        authState.value.loading = true
+        // authState.value.loading = true
 
         try {
             await performLogout()
