@@ -77,6 +77,7 @@ const props = defineProps<{
 watch(() => props.user, (newUser) => {
     if (newUser) {
         profile.value.name = newUser.name || profile.value.name
+        profile.value.email = newUser.eamil || profile.value.eamil
         profile.value.role = newUser.role || profile.value.role
         profile.value.department = newUser.department || profile.value.department
     }
