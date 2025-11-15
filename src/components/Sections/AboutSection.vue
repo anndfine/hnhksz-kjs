@@ -6,7 +6,7 @@
         <div class="col-lg-8 mx-auto text-center">
           <h2 class="display-4 fw-bold mb-3">关于科技社</h2>
           <p class="lead text-muted">
-            海口四中科技社成立于2015年，是一个专注于科技创新和实践的学生社团。
+            海口四中科技社成立于2007年，是一个专注于科技创新和实践的学生社团。
             我们致力于培养学生的科学素养、创新思维和实践能力。
           </p>
         </div>
