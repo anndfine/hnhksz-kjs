@@ -50,6 +50,7 @@ interface user {
     department?: string
     lastLogin?: string
     permissions?: string[]
+    email?: string
 }
 
 
@@ -77,7 +78,7 @@ const props = defineProps<{
 watch(() => props.user, (newUser) => {
     if (newUser) {
         profile.value.name = newUser.name || profile.value.name
-        profile.value.email = newUser.eamil || profile.value.eamil
+        profile.value.email = newUser.email || profile.value.email
         profile.value.role = newUser.role || profile.value.role
         profile.value.department = newUser.department || profile.value.department
     }
