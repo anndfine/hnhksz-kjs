@@ -78,7 +78,7 @@
                                     <div class="row g-3">
                                         <!-- 旧密码 -->
                                         <div class="col-12">
-                                            <label for="oldPassword" class="form-label small text-muted">旧密码</label>
+                                            <label for="oldPassword" class="form-label small text-muted d-none">旧密码</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">
                                                     <i class="bi bi-lock"></i>
@@ -97,7 +97,7 @@
 
                                         <!-- 新密码 -->
                                         <div class="col-12">
-                                            <label for="newPassword" class="form-label small text-muted">新密码</label>
+                                            <label for="newPassword" class="d-none form-label small text-muted">新密码</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">
                                                     <i class="bi bi-lock-fill"></i>
@@ -135,7 +135,7 @@
 
                                         <!-- 确认新密码 -->
                                         <div class="col-12">
-                                            <label for="confirmPassword" class="form-label small text-muted">确认新密码</label>
+                                            <label for="confirmPassword" class="d-none form-label small text-muted">确认新密码</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">
                                                     <i class="bi bi-lock-fill"></i>
@@ -158,8 +158,8 @@
 
                                         <!-- 验证码（iframe留空，后续可嵌入） -->
                                         <div class="col-12">
-                                            <label class="form-label small text-muted">验证码</label>
-                                            <div class="input-group">
+                                            <label class="form-label small text-muted">确认你是人类</label>
+                                            <div class="input-group d-none">
                                                 <input
                                                     type="text"
                                                     class="form-control"
@@ -173,12 +173,13 @@
                                                 </span>
                                             </div>
                                             <!-- 验证码iframe容器（留空，后续可嵌入验证码组件） -->
-                                            <div class="mt-2 bg-light p-3 rounded" style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                                            <!-- 接入CloudFlare 或自定义页面 -->
+                                            <div class="mt-2 bg-light p-3 rounded" style="min-height: 8px; display: flex; align-items: center; justify-content: center;">
                                                 <iframe
                                                     :src="verifyCodeIframeUrl"
                                                     frameborder="0"
                                                     width="100%"
-                                                    height="80"
+                                                    height="8"
                                                     style="border-radius: 4px;"
                                                     :disabled="submitLoading"
                                                 ></iframe>

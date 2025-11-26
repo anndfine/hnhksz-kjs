@@ -3,7 +3,7 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="card-title fw-bold mb-0">科技社的物联网设备</h5>
+                <h5 class="card-title fw-bold mb-0 d-none">科技社的物联网设备</h5>
                 <div class="d-flex align-items-center">
                     <span class="text-muted me-3">共 {{ totalDevices }} 台设备</span>
                     <button class="btn btn-outline-secondary btn-sm" @click="refreshDevices" :disabled="loading">
