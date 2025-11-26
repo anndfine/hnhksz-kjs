@@ -53,7 +53,7 @@
                         <!-- 账户安全区域 -->
                         <div class="security-section">
                             <h6 class="text-muted mb-3">账户安全</h6>
-                            <div class="list-group">
+                            <div class="list-group mb-4">
                                 <div class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="bi bi-shield-check text-success me-2"></i>
@@ -68,6 +68,136 @@
                                     </div>
                                     <small class="text-muted">{{ formatRelativeTime(user?.lastLogin) }}</small>
                                 </div>
+                            </div>
+                            <!-- 密码修改区域 -->
+                            <div class="password-change-section mt-5">
+                                <h6 class="text-muted mb-3">
+                                    <i class="bi bi-key me-2"></i>修改密码
+                                </h6>
+                                <form @submit.prevent="handleChangePassword" class="password-form">
+                                    <div class="row g-3">
+                                        <!-- 旧密码 -->
+                                        <div class="col-12">
+                                            <label for="oldPassword" class="form-label small text-muted">旧密码</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-lock"></i>
+                                                </span>
+                                                <input
+                                                    type="password"
+                                                    class="form-control"
+                                                    id="oldPassword"
+                                                    v-model="oldPassword"
+                                                    placeholder="请输入当前密码"
+                                                    required
+                                                    :disabled="submitLoading"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <!-- 新密码 -->
+                                        <div class="col-12">
+                                            <label for="newPassword" class="form-label small text-muted">新密码</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </span>
+                                                <input
+                                                    type="password"
+                                                    class="form-control"
+                                                    id="newPassword"
+                                                    v-model="newPassword"
+                                                    placeholder="请输入新密码（至少8位）"
+                                                    required
+                                                    :disabled="submitLoading"
+                                                    @input="checkPasswordStrength"
+                                                />
+                                            </div>
+                                            <!-- 密码强度提示 -->
+                                            <div v-if="newPassword.length > 0" class="mt-1">
+                                                <div class="d-flex align-items-center">
+                                                    <small class="text-muted me-2">密码强度:</small>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div
+                                                                class="progress-bar"
+                                                                :class="passwordStrengthClass"
+                                                                :style="{ width: passwordStrengthWidth }"
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                    <small class="ms-2" :class="passwordStrengthTextClass">
+                                                        {{ passwordStrengthText }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 确认新密码 -->
+                                        <div class="col-12">
+                                            <label for="confirmPassword" class="form-label small text-muted">确认新密码</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </span>
+                                                <input
+                                                    type="password"
+                                                    class="form-control"
+                                                    id="confirmPassword"
+                                                    v-model="confirmPassword"
+                                                    placeholder="请再次输入新密码"
+                                                    required
+                                                    :disabled="submitLoading"
+                                                />
+                                            </div>
+                                            <!-- 密码不一致提示 -->
+                                            <div v-if="confirmPassword.length > 0 && newPassword !== confirmPassword" class="mt-1">
+                                                <small class="text-danger">两次输入的密码不一致</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- 验证码（iframe留空，后续可嵌入） -->
+                                        <div class="col-12">
+                                            <label class="form-label small text-muted">验证码</label>
+                                            <div class="input-group">
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    v-model="verifyCode"
+                                                    placeholder="请输入验证码"
+                                                    required
+                                                    :disabled="submitLoading"
+                                                />
+                                                <span class="input-group-text" style="cursor: pointer;" @click="refreshVerifyCode" :disabled="submitLoading">
+                                                    <i class="bi bi-arrow-clockwise"></i> 刷新
+                                                </span>
+                                            </div>
+                                            <!-- 验证码iframe容器（留空，后续可嵌入验证码组件） -->
+                                            <div class="mt-2 bg-light p-3 rounded" style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                                                <iframe
+                                                    :src="verifyCodeIframeUrl"
+                                                    frameborder="0"
+                                                    width="100%"
+                                                    height="80"
+                                                    style="border-radius: 4px;"
+                                                    :disabled="submitLoading"
+                                                ></iframe>
+                                            </div>
+                                        </div>
+
+                                        <!-- 提交按钮 -->
+                                        <div class="col-12">
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary w-100"
+                                                :disabled="submitLoading || !isFormValid"
+                                            >
+                                                <i class="bi bi-save me-1"></i>
+                                                {{ submitLoading ? '提交中...' : '确认修改' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -105,7 +235,7 @@
                             </button>
 
                             <!-- 删除账户按钮 -->
-                            <button class="btn btn-outline-danger" @click="showDeleteAccountModal">
+                            <button class="d-none btn btn-outline-danger" @click="showDeleteAccountModal">
                                 <i class="bi bi-trash me-1"></i>删除账户
                             </button>
                         </div>
@@ -117,7 +247,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuth } from './useAuth.ts'
 import { showToast } from '@/utils/toast.ts'
 // import SystemSettings from './SystemSettings.vue'
@@ -126,7 +256,7 @@ import { showToast } from '@/utils/toast.ts'
 const { logout } = useAuth()
 
 // 定义props
-interface user {
+interface User {
     id: number
     name?: string
     avatar?: string
@@ -137,7 +267,7 @@ interface user {
 }
 
 const props = defineProps<{
-    user: user | null
+    user: User | null
 }>()
 
 // 定义emits
@@ -149,8 +279,131 @@ const emit = defineEmits<{
 
 // 状态管理
 const logoutLoading = ref(false)
+const submitLoading = ref(false)
 
 // 方法定义
+// 密码修改表单状态
+const oldPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+const verifyCode = ref('')
+const verifyCodeIframeUrl = ref('') // 验证码iframe地址，后续可配置
+
+// 密码强度相关状态
+const passwordStrength = ref(0) // 0-3：弱、中、强、极强
+const passwordStrengthText = ref('')
+const passwordStrengthClass = ref('')
+const passwordStrengthWidth = ref('0%')
+const passwordStrengthTextClass = ref('')
+
+// 初始化验证码（实际项目中替换为真实的验证码接口）
+const refreshVerifyCode = () => {
+    // 这里只是模拟刷新，实际项目中应该请求新的验证码地址
+    verifyCodeIframeUrl.value = `about:blank?t=${Date.now()}`
+    verifyCode.value = ''
+}
+
+// 检查密码强度
+const checkPasswordStrength = () => {
+    const password = newPassword.value
+    let strength = 0
+    
+    if (password.length >= 8) strength++
+    if (password.match(/[A-Z]/)) strength++
+    if (password.match(/[0-9]/)) strength++
+    if (password.match(/[^A-Za-z0-9]/)) strength++
+    
+    passwordStrength.value = strength
+    
+    // 根据强度设置样式和文本
+    switch(strength) {
+        case 0:
+            passwordStrengthText.value = '未输入'
+            passwordStrengthClass.value = 'bg-secondary'
+            passwordStrengthWidth.value = '0%'
+            passwordStrengthTextClass.value = 'text-secondary'
+            break
+        case 1:
+            passwordStrengthText.value = '弱'
+            passwordStrengthClass.value = 'bg-danger'
+            passwordStrengthWidth.value = '25%'
+            passwordStrengthTextClass.value = 'text-danger'
+            break
+        case 2:
+            passwordStrengthText.value = '中'
+            passwordStrengthClass.value = 'bg-warning'
+            passwordStrengthWidth.value = '50%'
+            passwordStrengthTextClass.value = 'text-warning'
+            break
+        case 3:
+            passwordStrengthText.value = '强'
+            passwordStrengthClass.value = 'bg-info'
+            passwordStrengthWidth.value = '75%'
+            passwordStrengthTextClass.value = 'text-info'
+            break
+        case 4:
+            passwordStrengthText.value = '极强'
+            passwordStrengthClass.value = 'bg-success'
+            passwordStrengthWidth.value = '100%'
+            passwordStrengthTextClass.value = 'text-success'
+            break
+    }
+}
+
+// 表单验证
+const isFormValid = computed(() => {
+    return (
+        oldPassword.value.trim() !== '' &&
+        newPassword.value.trim() !== '' &&
+        newPassword.value.length >= 8 &&
+        confirmPassword.value.trim() !== '' &&
+        newPassword.value === confirmPassword.value &&
+        verifyCode.value.trim() !== ''
+    )
+})
+
+// 处理密码修改
+const handleChangePassword = async () => {
+    if (!isFormValid.value) return
+    
+    submitLoading.value = true
+    showToast('info', '正在提交修改...')
+    
+    try {
+        // 实际项目中替换为真实的密码修改接口
+        console.log('提交密码修改：', {
+            oldPassword: oldPassword.value,
+            newPassword: newPassword.value,
+            verifyCode: verifyCode.value
+        })
+        
+        // 模拟接口请求延迟
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        
+        // 密码修改成功后的处理
+        showToast('success', '密码修改成功！请重新登录')
+        
+        // 重置表单
+        oldPassword.value = ''
+        newPassword.value = ''
+        confirmPassword.value = ''
+        verifyCode.value = ''
+        passwordStrength.value = 0
+        
+        // 可选：修改成功后自动退出登录，让用户重新登录
+        // setTimeout(() => {
+        //     handleLogout()
+        // }, 1000)
+    } catch (error) {
+        console.error('密码修改失败:', error)
+        showToast('error', '密码修改失败，请稍后重试')
+    } finally {
+        submitLoading.value = false
+        refreshVerifyCode() // 刷新验证码
+    }
+}
+
+// 处理退出登录
 const handleLogout = async () => {
     logoutLoading.value = true
     showToast('info', '正在退出登录...');
@@ -160,6 +413,7 @@ const handleLogout = async () => {
             // 登出成功后的处理在父组件中完成
         } catch (error) {
             console.error('登出失败:', error)
+            showToast('error', '登出失败，请稍后重试')
         } finally {
             logoutLoading.value = false
             showToast('success', '欢迎下次使用');
@@ -167,6 +421,7 @@ const handleLogout = async () => {
     }, 1500)
 }
 
+// 其他方法
 const switchToProfile = () => {
     emit('switchToProfile')
 }
@@ -201,6 +456,9 @@ const formatRelativeTime = (dateString?: string) => {
 
     return date.toLocaleDateString('zh-CN')
 }
+
+// 初始化验证码
+refreshVerifyCode()
 </script>
 
 <style scoped>
