@@ -351,7 +351,7 @@ const checkAndShowStatusToasts = () => {
         toast.warning('最新打卡记录被标记为无效，请检查打卡时间。', 8000)
     } else if (hasLongPendingRecord.value) {
         const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
-        toast.error(`长时间未签退警告：已持续 ${pendingMinutes} 分钟，未及时签退将导致记录无效！`, 10000)
+        toast.warning(`长时间未签退警告：已持续 ${pendingMinutes} 分钟，未及时签退将导致记录无效！`, 10000)
     } else if (latestRecord.value.status === 'pending') {
         const pendingMinutes = Math.floor((Date.now() - latestRecord.value.checkin_time) / (1000 * 60))
         if (pendingMinutes > 10) { // 10分钟以上才提示
