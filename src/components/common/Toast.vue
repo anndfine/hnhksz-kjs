@@ -246,7 +246,7 @@ defineExpose({
 /* 响应式设计 */
 @media (max-width: 768px) {
     .toast-container {
-        left: 10px;
+        /* left: 10px; */
         right: 10px;
         top: 10px;
     }
