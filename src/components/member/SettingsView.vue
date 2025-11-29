@@ -69,6 +69,117 @@
                                     <small class="text-muted">{{ formatRelativeTime(user?.lastLogin) }}</small>
                                 </div>
                             </div>
+
+                            <!-- 邮箱修改区域 -->
+                            <div class="password-change-section mt-5 mb-2">
+                                <h6 class="text-muted mb-3">
+                                    <i class="bi bi-key me-2"></i>修改邮箱
+                                </h6>
+                                <form @submit.prevent="handleChangePassword" class="password-form">
+                                    <div class="row g-3">
+                                        <!-- 旧密码 -->
+                                        <div class="col-12">
+                                            <label for="oldPassword" class="form-label small text-muted d-none">新邮箱</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-lock"></i>
+                                                </span>
+                                                <input
+                                                    type="password"
+                                                    class="form-control"
+                                                    id="oldPassword"
+                                                    v-model="oldPassword"
+                                                    placeholder="邮箱"
+                                                    required
+                                                    :disabled="submitLoading"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <!-- 新密码 -->
+                                        <div class="col-12">
+                                            <label for="newPassword" class="d-none form-label small text-muted">密码</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </span>
+                                                <input
+                                                    type="password"
+                                                    class="form-control"
+                                                    id="newPassword"
+                                                    v-model="newPassword"
+                                                    placeholder="请输入新密码（至少8位）"
+                                                    required
+                                                    :disabled="submitLoading"
+                                                    @input="checkPasswordStrength"
+                                                />
+                                            </div>
+                                            <!-- 密码强度提示 -->
+                                            <div v-if="newPassword.length > 0" class="mt-1">
+                                                <div class="d-flex align-items-center">
+                                                    <small class="text-muted me-2">密码强度:</small>
+                                                    <div class="flex-grow-1">
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div
+                                                                class="progress-bar"
+                                                                :class="passwordStrengthClass"
+                                                                :style="{ width: passwordStrengthWidth }"
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                    <small class="ms-2" :class="passwordStrengthTextClass">
+                                                        {{ passwordStrengthText }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- 验证码（iframe留空，后续可嵌入） -->
+                                        <div class="col-12">
+                                            <label class="form-label small text-muted">确认你是人类</label>
+                                            <div class="input-group d-none">
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    v-model="verifyCode"
+                                                    placeholder="请输入验证码"
+                                                    required
+                                                    :disabled="submitLoading"
+                                                />
+                                                <span class="input-group-text" style="cursor: pointer;" @click="refreshVerifyCode" :disabled="submitLoading">
+                                                    <i class="bi bi-arrow-clockwise"></i> 刷新
+                                                </span>
+                                            </div>
+                                            <!-- 验证码iframe容器（留空，后续可嵌入验证码组件） -->
+                                            <!-- 接入CloudFlare 或自定义页面 -->
+                                            <div class="mt-2 bg-light p-3 rounded" style="min-height: 8px; display: flex; align-items: center; justify-content: center;">
+                                                <iframe
+                                                    :src="verifyCodeIframeUrl"
+                                                    frameborder="0"
+                                                    width="100%"
+                                                    height="8"
+                                                    style="border-radius: 4px;"
+                                                    :disabled="submitLoading"
+                                                ></iframe>
+                                            </div>
+                                        </div>
+
+                                        <!-- 提交按钮 -->
+                                        <div class="col-12">
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary w-100"
+                                                :disabled="submitLoading || !isFormValid"
+                                            >
+                                                <i class="bi bi-save me-1"></i>
+                                                {{ submitLoading ? '提交中...' : '确认修改' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
                             <!-- 密码修改区域 -->
                             <div class="password-change-section mt-5">
                                 <h6 class="text-muted mb-3">
@@ -78,7 +189,7 @@
                                     <div class="row g-3">
                                         <!-- 旧密码 -->
                                         <div class="col-12">
-                                            <label for="oldPassword" class="form-label small text-muted">旧密码</label>
+                                            <label for="oldPassword" class="form-label small text-muted d-none">旧密码</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">
                                                     <i class="bi bi-lock"></i>
@@ -97,7 +208,7 @@
 
                                         <!-- 新密码 -->
                                         <div class="col-12">
-                                            <label for="newPassword" class="form-label small text-muted">新密码</label>
+                                            <label for="newPassword" class="d-none form-label small text-muted">新密码</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">
                                                     <i class="bi bi-lock-fill"></i>
@@ -135,7 +246,7 @@
 
                                         <!-- 确认新密码 -->
                                         <div class="col-12">
-                                            <label for="confirmPassword" class="form-label small text-muted">确认新密码</label>
+                                            <label for="confirmPassword" class="d-none form-label small text-muted">确认新密码</label>
                                             <div class="input-group">
                                                 <span class="input-group-text">
                                                     <i class="bi bi-lock-fill"></i>
@@ -158,8 +269,8 @@
 
                                         <!-- 验证码（iframe留空，后续可嵌入） -->
                                         <div class="col-12">
-                                            <label class="form-label small text-muted">验证码</label>
-                                            <div class="input-group">
+                                            <label class="form-label small text-muted">确认你是人类</label>
+                                            <div class="input-group d-none">
                                                 <input
                                                     type="text"
                                                     class="form-control"
@@ -173,12 +284,13 @@
                                                 </span>
                                             </div>
                                             <!-- 验证码iframe容器（留空，后续可嵌入验证码组件） -->
-                                            <div class="mt-2 bg-light p-3 rounded" style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                                            <!-- 接入CloudFlare 或自定义页面 -->
+                                            <div class="mt-2 bg-light p-3 rounded" style="min-height: 8px; display: flex; align-items: center; justify-content: center;">
                                                 <iframe
                                                     :src="verifyCodeIframeUrl"
                                                     frameborder="0"
                                                     width="100%"
-                                                    height="80"
+                                                    height="8"
                                                     style="border-radius: 4px;"
                                                     :disabled="submitLoading"
                                                 ></iframe>

@@ -77,8 +77,8 @@ const tabs: Tab[] = [
     { id: 'dashboard', name: '工作台', icon: 'bi bi-speedometer2' },
     { id: 'devices', name: '设备管理', icon: 'bi bi-cpu' },
     { id: 'attendance', name: '活动考勤', icon: 'bi bi-calendar-check' },
-    { id: 'projects', name: '我的项目', icon: 'bi bi-kanban' },
-    { id: 'profile', name: '个人信息', icon: 'bi bi-person' },
+    // { id: 'projects', name: '我的项目', icon: 'bi bi-kanban' },
+    // { id: 'profile', name: '个人信息', icon: 'bi bi-person' },
     { id: 'help', name: '使用帮助', icon: 'bi bi-question-circle' },
     { id: 'settings', name: '系统设置', icon: 'bi bi-gear' }
 ]
