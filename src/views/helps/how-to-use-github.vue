@@ -85,6 +85,7 @@
                             <li>点击项目页面的 "Fork" 按钮</li>
                             <li>将项目克隆到本地：<code>git clone [你的仓库地址]</code></li>
                             <li>创建新分支：<code>git checkout -b feature/你的功能</code></li>
+<li>在你的新分支上进行修改</li>
                             <li>提交代码并推送到你的仓库</li>
                             <li>在 GitHub 创建 Pull Request</li>
                         </ol>
