@@ -4,7 +4,7 @@
         <div class="login-header">
             <i class="bi bi-person-circle login-icon"></i>
             <h2 class="login-title">科技社成员系统</h2>
-            <p class="login-subtitle">请登录您的账户</p>
+            <p class="login-subtitle">请登录</p>
         </div>
 
         <form @submit.prevent="handleLogin" class="login-form">
@@ -26,6 +26,10 @@
             </button>
         </form>
 
+        <!-- 集成防护验证组件 -->
+        <AnubisShieldModal ref="shieldModal" @verified="onShieldVerified" @error="onShieldError"
+            @cancel="onShieldCancel" />
+
         <div v-if="localError" class="alert alert-danger mt-3" role="alert">
             <i class="bi bi-exclamation-triangle me-2"></i>
             {{ localError }}
@@ -34,43 +38,59 @@
         <div class="login-footer mt-4">
             <small class="text-muted">
                 <i class="bi bi-info-circle me-1"></i>
-                遇到问题？请联系科技社技术支持
+                遇到问题？请<a href="https://yt437700.top" target="_blank" class="text-decoration-none">联系管理员获得技术支持</a>
             </small>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useAuth } from '@/components/member/useAuth.ts'
+// import AnubisShieldModal from './AnubisShieldModal.vue'
 
 const { login, error: authError } = useAuth()
+// const shieldModal = ref<InstanceType<typeof AnubisShieldModal>>()
 
 const emit = defineEmits<{
     loginSuccess: []
 }>()
 
-const localLoading = ref(false)  // 使用本地loading状态
-const localError = ref('')       // 使用本地error状态
+const localLoading = ref(false)
+const localError = ref('')
 
 const form = reactive({
     username: '',
     password: ''
 })
 
-const handleLogin = async () => {
-    if (!form.username || !form.password) {
-        localError.value = '请输入用户名和密码'
-        return
-    }
+// 存储验证结果
+let verificationResult: { challenge: string; response: string; encryptedPassword: string } | null = null
 
-    localLoading.value = true
-    localError.value = ''
+const onShieldVerified = (result: { challenge: string; response: string; encryptedPassword: string }) => {
+    verificationResult = result
+    // 验证成功后执行实际登录
+    executeLogin()
+}
 
+const onShieldError = (error: string) => {
+    localError.value = `安全验证失败: ${error}`
+    localLoading.value = false
+}
+
+const onShieldCancel = () => {
+    localLoading.value = false
+    verificationResult = null
+}
+
+const executeLogin = async () => {
     try {
+        // 使用验证结果进行登录
         const success = await login({
             username: form.username,
-            password: form.password
+            password: verificationResult!.encryptedPassword, // 使用加密后的密码
+            challenge: verificationResult!.challenge,
+            response: verificationResult!.response
         })
 
         if (success) {
@@ -81,19 +101,43 @@ const handleLogin = async () => {
         }
     } catch (err) {
         console.error('登录过程出错:', err)
-        localError.value = `登录失败，请检查网络连接后重试。问题：${err || '未知错误'}`
         localError.value = `${err || '未知错误'}`
-        // throw new Error(err.message || '登录失败，请检查网络连接后重试')
     } finally {
-        // localLoading.value = false
-        // 使用 setTimeout 避免状态冲突
-        setTimeout(() => {
-            localLoading.value = false
-        }, 100)
+        localLoading.value = false
+        verificationResult = null
     }
 }
+
+const handleLogin = async () => {
+    if (!form.username || !form.password) {
+        localError.value = '请输入用户名和密码'
+        return
+    }
+
+    localLoading.value = true
+    localError.value = ''
+    verificationResult = null
+
+    // try {
+    //     // 显示防护验证Modal
+    //     if (shieldModal.value) {
+    //         shieldModal.value.show(form.username, form.password)
+    //     } else {
+    //         throw new Error('安全验证组件加载失败')
+    //     }
+    // } catch (err) {
+    //     console.error('启动安全验证失败:', err)
+    //     localError.value = `安全验证启动失败: ${err}`
+    //     localLoading.value = false
+    // }
+}
+
+onMounted(() => {
+    console.log('Anubis防护验证已集成')
+})
 </script>
 
+<!-- 保持原有样式不变 -->
 <style scoped>
 .login-card {
     background: white;
