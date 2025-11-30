@@ -472,7 +472,7 @@ const getPriorityBadgeClass = (priority: string) => {
 const getAnnouncementTypeClass = (type: string) => {
     switch (type) {
         case '重要': return 'bg-danger'
-        case '通知': return 'bg-primary'
+        // case '通知': return 'bg-primary'
         case '安排': return 'bg-success'
         case '通知': return 'bg-info'
         case '更新': return 'bg-success'
