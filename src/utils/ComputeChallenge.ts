@@ -136,7 +136,6 @@ export class ComputeChallenge {
                     <div class="compute-modal-header">
                         <div class="compute-shield-icon">🛡️</div>
                         <h3>安全验证</h3>
-                        <p>正在验证访问权限</p>
                     </div>
                     <div class="compute-modal-body">
                         <div class="compute-challenge-container">
@@ -407,7 +406,6 @@ export class ComputeChallenge {
                 container.innerHTML = `
                     <div class="compute-loading">
                         <div class="compute-spinner"></div>
-                        <p class="compute-status">${message}</p>
                     </div>
                     <div class="compute-progress-area">
                         <div class="compute-progress">
@@ -485,8 +483,9 @@ export class ComputeChallenge {
         const requiredZeros = difficultyConfig.zeros;
         const maxTime = difficultyConfig.maxTime; // 获取配置的最大时间
 
-        this.updateUI('computing', `正在进行安全计算 (需要${requiredZeros}个前导零)...`);
+        // this.updateUI('computing', `正在进行安全计算 (需要${requiredZeros}个前导零)...`);
 
+        this.updateUI('computing', '');
         let nonce = 0;
         let hashesComputed = 0;
         const startTime = Date.now();
