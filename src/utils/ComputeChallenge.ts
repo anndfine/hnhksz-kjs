@@ -1,5 +1,6 @@
 // src/utils/ComputeChallenge.ts
 
+import { apinodes } from '@/data/apinodes'
 export interface ServerChallenge {
     challenge: string;      // 挑战前缀字符串
     difficulty: number;     // 难度级别 (1-10)
@@ -9,6 +10,7 @@ export interface ServerChallenge {
 
 export interface ComputeResult {
     success: boolean;
+    response?: string;
     challenge?: string;
     nonce?: number;
     hash?: string;
@@ -29,11 +31,11 @@ export class ComputeChallenge {
         3: { zeros: 4, description: "中等", maxTime: 300000 },     // 5分钟
         4: { zeros: 5, description: "稍难", maxTime: 600000 },     // 10分钟
         5: { zeros: 6, description: "困难", maxTime: 1200000 },    // 20分钟
-        6: { zeros: 8, description: "非常困难", maxTime: 2400000 }, // 40分钟
-        7: { zeros: 10, description: "专家", maxTime: 3600000 },   // 60分钟
-        8: { zeros: 11, description: "大师", maxTime: 4800000 },   // 80分钟
-        9: { zeros: 12, description: "地狱", maxTime: 6000000 },   // 100分钟
-        10: { zeros: 13, description: "极限", maxTime: 7200000 }   // 120分钟
+        6: { zeros: 7, description: "非常困难", maxTime: 2400000 }, // 40分钟
+        7: { zeros: 8, description: "专家", maxTime: 3600000 },   // 60分钟
+        8: { zeros: 9, description: "大师", maxTime: 4800000 },   // 80分钟
+        9: { zeros: 10, description: "地狱", maxTime: 6000000 },   // 100分钟
+        10: { zeros: 11, description: "极限", maxTime: 7200000 }   // 120分钟
     };
 
     /**
@@ -77,17 +79,28 @@ export class ComputeChallenge {
      */
     private async fetchChallengeFromServer(): Promise<ServerChallenge> {
         // 临时使用JSON填充，实际应从服务器获取
-        const tempChallenge: ServerChallenge = {
-            challenge: `anubis_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-            difficulty: 3, // 默认中等难度
-            timestamp: Date.now(),
-            expires: Date.now() + 600000 // 10分钟过期
-        };
+        // const tempChallenge: ServerChallenge = {
+        //     challenge: `anubis_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
+        //     difficulty: 3, // 默认中等难度
+        //     timestamp: Date.now(),
+        //     expires: Date.now() + 600000 // 10分钟过期
+        // };
 
-        // 模拟网络请求延迟
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // // 模拟网络请求延迟
+        // await new Promise(resolve => setTimeout(resolve, 500));
 
-        return tempChallenge;
+        // return tempChallenge;
+
+        // 1. 获取挑战
+        const challengeResponse = await fetch(`${apinodes[0]!.domain}/api/auth/challenge`);
+        const challengeData = await challengeResponse.json();
+
+        if (!challengeData.success) {
+            throw new Error('获取挑战失败');
+        }
+        else {
+            return challengeData.data as ServerChallenge;
+        }
     }
 
     /**
@@ -502,6 +515,7 @@ export class ComputeChallenge {
                     return {
                         success: true,
                         challenge: this.currentChallenge.challenge,
+                        response: data,
                         nonce,
                         hash,
                         computationTime
