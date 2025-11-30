@@ -58,7 +58,7 @@ export function useAuth() {
     }
 
     // 登录
-    const login = async (credentials: { username: string; password: string }): Promise<boolean> => {
+    const login = async (credentials: { challenge?: string; response?: string; username: string; password: string }): Promise<boolean> => {
         // authState.value.loading = true
         authState.value.error = null
 

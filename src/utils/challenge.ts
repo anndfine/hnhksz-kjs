@@ -4,6 +4,8 @@
  */
 import { encryptPassword, bufferToHex } from './crypto'
 
+import { computeChallenge } from '@/utils/ComputeChallenge';
+
 export interface Challenge {
     challenge: string
     timestamp: number
@@ -128,5 +130,12 @@ export async function computeChallengeResponse(
 
     // 计算哈希
     const hashBuffer = await crypto.subtle.digest('SHA-256', combined)
-    return bufferToHex(hashBuffer)
+    // return bufferToHex(hashBuffer)
+    // 方式2: 使用自定义挑战数据
+    const result = await computeChallenge();
+    console.log(result)
+    if (result.hash) {
+        return result.hash!;
+    }
+    throw new Error('计算挑战响应失败，哈希值为空')
 }
