@@ -26,10 +26,6 @@
             </button>
         </form>
 
-        <!-- 集成防护验证组件 -->
-        <AnubisShieldModal ref="shieldModal" @verified="onShieldVerified" @error="onShieldError"
-            @cancel="onShieldCancel" />
-
         <div v-if="localError" class="alert alert-danger mt-3" role="alert">
             <i class="bi bi-exclamation-triangle me-2"></i>
             {{ localError }}
@@ -47,50 +43,34 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useAuth } from '@/components/member/useAuth.ts'
-// import AnubisShieldModal from './AnubisShieldModal.vue'
 
-const { login, error: authError } = useAuth()
-// const shieldModal = ref<InstanceType<typeof AnubisShieldModal>>()
+const { login } = useAuth()
 
 const emit = defineEmits<{
     loginSuccess: []
 }>()
 
-const localLoading = ref(false)
-const localError = ref('')
+const localLoading = ref(false)  // 使用本地loading状态
+const localError = ref('')       // 使用本地error状态
 
 const form = reactive({
     username: '',
     password: ''
 })
 
-// 存储验证结果
-let verificationResult: { challenge: string; response: string; encryptedPassword: string } | null = null
+const handleLogin = async () => {
+    if (!form.username || !form.password) {
+        localError.value = '请输入用户名和密码'
+        return
+    }
 
-const onShieldVerified = (result: { challenge: string; response: string; encryptedPassword: string }) => {
-    verificationResult = result
-    // 验证成功后执行实际登录
-    executeLogin()
-}
+    localLoading.value = true
+    localError.value = ''
 
-const onShieldError = (error: string) => {
-    localError.value = `安全验证失败: ${error}`
-    localLoading.value = false
-}
-
-const onShieldCancel = () => {
-    localLoading.value = false
-    verificationResult = null
-}
-
-const executeLogin = async () => {
     try {
-        // 使用验证结果进行登录
         const success = await login({
             username: form.username,
-            password: verificationResult!.encryptedPassword, // 使用加密后的密码
-            challenge: verificationResult!.challenge,
-            response: verificationResult!.response
+            password: form.password
         })
 
         if (success) {
@@ -101,39 +81,20 @@ const executeLogin = async () => {
         }
     } catch (err) {
         console.error('登录过程出错:', err)
+        localError.value = `登录失败，请检查网络连接后重试。问题：${err || '未知错误'}`
         localError.value = `${err || '未知错误'}`
+        // throw new Error(err.message || '登录失败，请检查网络连接后重试')
     } finally {
-        localLoading.value = false
-        verificationResult = null
+        // localLoading.value = false
+        // 使用 setTimeout 避免状态冲突
+        setTimeout(() => {
+            localLoading.value = false
+        }, 100)
     }
-}
-
-const handleLogin = async () => {
-    if (!form.username || !form.password) {
-        localError.value = '请输入用户名和密码'
-        return
-    }
-
-    localLoading.value = true
-    localError.value = ''
-    verificationResult = null
-
-    // try {
-    //     // 显示防护验证Modal
-    //     if (shieldModal.value) {
-    //         shieldModal.value.show(form.username, form.password)
-    //     } else {
-    //         throw new Error('安全验证组件加载失败')
-    //     }
-    // } catch (err) {
-    //     console.error('启动安全验证失败:', err)
-    //     localError.value = `安全验证启动失败: ${err}`
-    //     localLoading.value = false
-    // }
 }
 
 onMounted(() => {
-    console.log('Anubis防护验证已集成')
+    console.log('防护验证已集成')
 })
 </script>
 
