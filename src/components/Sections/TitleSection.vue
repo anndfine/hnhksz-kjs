@@ -13,7 +13,7 @@
             探索前沿科技，开展丰富活动，培养未来科技人才
           </p>
           <div class="d-flex gap-3">
-            <a href="#about" class="btn btn-light btn-lg px-4">了解更多</a>
+            <a href="#groups" class="btn btn-light btn-lg px-4">了解更多</a>
             <a href="#join" class="btn btn-outline-light btn-lg px-4">加入我们</a>
           </div>
         </div>
