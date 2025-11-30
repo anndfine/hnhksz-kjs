@@ -8,8 +8,8 @@ import { apinodes } from '@/data/apinodes'
 export interface LoginCredentials {
     username: string
     password: string
-    challenge?: string
-    response?: string
+    challenge: string
+    response: string
 }
 
 export interface AuthResponse {

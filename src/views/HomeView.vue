@@ -5,6 +5,7 @@
         <main>
             <TitleSection />
             <AboutSection />
+            <GroupsSection />
             <ActivitiesSection />
             <ProjectsSection />
             <MembersSection />
@@ -19,6 +20,7 @@ import Navbar from "@/components/Layout/Navbar.vue"
 import Footer from '@/components/Layout/Footer.vue'
 import TitleSection from '@/components/Sections/TitleSection.vue'
 import AboutSection from '@/components/Sections/AboutSection.vue'
+import GroupsSection from '@/components/Sections/GroupsSection.vue'
 import ActivitiesSection from '@/components/Sections/ActivitiesSection.vue'
 import ProjectsSection from '@/components/Sections/ProjectsSection.vue'
 import MembersSection from '@/components/Sections/MembersSection.vue'

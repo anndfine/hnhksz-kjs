@@ -82,25 +82,23 @@ export function clearChallenge(): void {
 export async function performChallengeResponse(
     username: string,
     password: string
-): Promise<{ challenge: string; response: string; encryptedPassword: string }> {
+): Promise<{
+    response: string; encryptedPassword: string,
+    challenge: string
+}> {
     try {
-        // 获取挑战
-        const challenge = await fetchChallenge()
 
-        if (!validateChallenge(challenge)) {
-            throw new Error('挑战无效或已过期')
-        }
 
         // 并行执行两个加密操作
-        const [encryptedResult, response] = await Promise.all([
+        const [encryptedResult, challengeResponse] = await Promise.all([
             // 使用 PBKDF2 加密密码（慢，用于存储验证）
             encryptPassword(username, password),
             // 使用 SHA-256 计算挑战响应（快，用于实时验证，同时增大恶意请求成本）
-            computeChallengeResponse(password, challenge.challenge)
+            computeChallengeResponse(password)
         ])
         return {
-            challenge: challenge.challenge,
-            response,
+            challenge: challengeResponse.challenge,
+            response: challengeResponse.response,
             encryptedPassword: encryptedResult.encrypted
         }
     } catch (error) {
@@ -115,27 +113,15 @@ export async function performChallengeResponse(
  * 计算挑战响应
  */
 export async function computeChallengeResponse(
-    password: string,
-    challenge: string
-): Promise<string> {
-    // 使用密码和挑战字符串计算响应
-    const encoder = new TextEncoder()
-    const passwordBuffer = encoder.encode(password)
-    const challengeBuffer = encoder.encode(challenge)
-
-    // 合并密码和挑战
-    const combined = new Uint8Array(passwordBuffer.length + challengeBuffer.length)
-    combined.set(passwordBuffer)
-    combined.set(challengeBuffer, passwordBuffer.length)
-
-    // 计算哈希
-    const hashBuffer = await crypto.subtle.digest('SHA-256', combined)
-    // return bufferToHex(hashBuffer)
-    // 方式2: 使用自定义挑战数据
+    password: string
+): Promise<{ response: string, challenge: string }> {
     const result = await computeChallenge();
     console.log(result)
-    if (result.hash) {
-        return result.hash!;
+    if (result.response && result.challenge) {
+        return {
+            response: result.response!,
+            challenge: result.challenge!
+        }
     }
     throw new Error('计算挑战响应失败，哈希值为空')
 }

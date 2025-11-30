@@ -18,6 +18,9 @@
             <a class="nav-link" href="/#about">关于我们</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="/#groups">小组介绍</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="/#activities">社团活动</a>
           </li>
           <li class="nav-item">
