@@ -143,15 +143,8 @@
                     <span class="input-group-text">
                       <i class="bi bi-lock"></i>
                     </span>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="emailOldPassword"
-                      v-model="emailForm.oldPassword"
-                      placeholder="请输入原密码"
-                      required
-                      :disabled="submitLoading"
-                    />
+                    <input type="password" class="form-control" id="emailOldPassword" v-model="emailForm.oldPassword"
+                      placeholder="请输入原密码" required :disabled="submitLoading" />
                   </div>
                 </div>
 
@@ -162,15 +155,8 @@
                     <span class="input-group-text">
                       <i class="bi bi-envelope"></i>
                     </span>
-                    <input
-                      type="email"
-                      class="form-control"
-                      id="newEmail"
-                      v-model="emailForm.newEmail"
-                      placeholder="请输入新邮箱"
-                      required
-                      :disabled="submitLoading"
-                    />
+                    <input type="email" class="form-control" id="newEmail" v-model="emailForm.newEmail"
+                      placeholder="请输入新邮箱" required :disabled="submitLoading" />
                   </div>
                 </div>
 
@@ -178,32 +164,23 @@
                 <div class="col-12">
                   <label for="emailVerifyCode" class="form-label">验证码</label>
                   <div class="input-group">
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="emailVerifyCode"
-                      v-model="emailForm.verifyCode"
-                      placeholder="请输入验证码"
-                      required
-                      :disabled="submitLoading"
-                    />
-                    <span class="input-group-text" style="cursor: pointer;" @click="refreshEmailVerifyCode" :disabled="submitLoading">
+                    <input type="text" class="form-control" id="emailVerifyCode" v-model="emailForm.verifyCode"
+                      placeholder="请输入验证码" required :disabled="submitLoading" />
+                    <span class="input-group-text" style="cursor: pointer;" @click="refreshEmailVerifyCode"
+                      :disabled="submitLoading">
                       <i class="bi bi-arrow-clockwise"></i> 刷新
                     </span>
                   </div>
                   <!-- 验证码图片（示例） -->
                   <div class="mt-2">
-                    <img :src="emailVerifyCodeUrl" alt="验证码" class="img-thumbnail" style="cursor: pointer;" @click="refreshEmailVerifyCode">
+                    <img :src="emailVerifyCodeUrl" alt="验证码" class="img-thumbnail" style="cursor: pointer;"
+                      @click="refreshEmailVerifyCode">
                   </div>
                 </div>
 
                 <!-- 提交按钮 -->
                 <div class="col-12">
-                  <button
-                    type="submit"
-                    class="btn btn-primary w-100"
-                    :disabled="submitLoading || !isEmailFormValid"
-                  >
+                  <button type="submit" class="btn btn-primary w-100" :disabled="submitLoading || !isEmailFormValid">
                     <i class="bi bi-save me-1"></i>
                     {{ submitLoading ? '提交中...' : '确认修改' }}
                   </button>
@@ -233,15 +210,8 @@
                     <span class="input-group-text">
                       <i class="bi bi-lock"></i>
                     </span>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="oldPassword"
-                      v-model="passwordForm.oldPassword"
-                      placeholder="请输入当前密码"
-                      required
-                      :disabled="submitLoading"
-                    />
+                    <input type="password" class="form-control" id="oldPassword" v-model="passwordForm.oldPassword"
+                      placeholder="请输入当前密码" required :disabled="submitLoading" />
                   </div>
                 </div>
 
@@ -252,16 +222,8 @@
                     <span class="input-group-text">
                       <i class="bi bi-lock-fill"></i>
                     </span>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="newPassword"
-                      v-model="passwordForm.newPassword"
-                      placeholder="请输入新密码（至少8位）"
-                      required
-                      :disabled="submitLoading"
-                      @input="checkPasswordStrength"
-                    />
+                    <input type="password" class="form-control" id="newPassword" v-model="passwordForm.newPassword"
+                      placeholder="请输入新密码（至少8位）" required :disabled="submitLoading" @input="checkPasswordStrength" />
                   </div>
                   <!-- 密码强度提示 -->
                   <div v-if="passwordForm.newPassword.length > 0" class="mt-1">
@@ -269,11 +231,8 @@
                       <small class="text-muted me-2">密码强度:</small>
                       <div class="flex-grow-1">
                         <div class="progress" style="height: 6px;">
-                          <div
-                            class="progress-bar"
-                            :class="passwordStrengthClass"
-                            :style="{ width: passwordStrengthWidth }"
-                          ></div>
+                          <div class="progress-bar" :class="passwordStrengthClass"
+                            :style="{ width: passwordStrengthWidth }"></div>
                         </div>
                       </div>
                       <small class="ms-2" :class="passwordStrengthTextClass">
@@ -290,18 +249,14 @@
                     <span class="input-group-text">
                       <i class="bi bi-lock-fill"></i>
                     </span>
-                    <input
-                      type="password"
-                      class="form-control"
-                      id="confirmPassword"
-                      v-model="passwordForm.confirmPassword"
-                      placeholder="请再次输入新密码"
-                      required
-                      :disabled="submitLoading"
-                    />
+                    <input type="password" class="form-control" id="confirmPassword"
+                      v-model="passwordForm.confirmPassword" placeholder="请再次输入新密码" required
+                      :disabled="submitLoading" />
                   </div>
                   <!-- 密码不一致提示 -->
-                  <div v-if="passwordForm.confirmPassword.length > 0 && passwordForm.newPassword !== passwordForm.confirmPassword" class="mt-1">
+                  <div
+                    v-if="passwordForm.confirmPassword.length > 0 && passwordForm.newPassword !== passwordForm.confirmPassword"
+                    class="mt-1">
                     <small class="text-danger">两次输入的密码不一致</small>
                   </div>
                 </div>
@@ -310,32 +265,23 @@
                 <div class="col-12">
                   <label for="passwordVerifyCode" class="form-label">验证码</label>
                   <div class="input-group">
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="passwordVerifyCode"
-                      v-model="passwordForm.verifyCode"
-                      placeholder="请输入验证码"
-                      required
-                      :disabled="submitLoading"
-                    />
-                    <span class="input-group-text" style="cursor: pointer;" @click="refreshPasswordVerifyCode" :disabled="submitLoading">
+                    <input type="text" class="form-control" id="passwordVerifyCode" v-model="passwordForm.verifyCode"
+                      placeholder="请输入验证码" required :disabled="submitLoading" />
+                    <span class="input-group-text" style="cursor: pointer;" @click="refreshPasswordVerifyCode"
+                      :disabled="submitLoading">
                       <i class="bi bi-arrow-clockwise"></i> 刷新
                     </span>
                   </div>
                   <!-- 验证码图片（示例） -->
                   <div class="mt-2">
-                    <img :src="passwordVerifyCodeUrl" alt="验证码" class="img-thumbnail" style="cursor: pointer;" @click="refreshPasswordVerifyCode">
+                    <img :src="passwordVerifyCodeUrl" alt="验证码" class="img-thumbnail" style="cursor: pointer;"
+                      @click="refreshPasswordVerifyCode">
                   </div>
                 </div>
 
                 <!-- 提交按钮 -->
                 <div class="col-12">
-                  <button
-                    type="submit"
-                    class="btn btn-primary w-100"
-                    :disabled="submitLoading || !isPasswordFormValid"
-                  >
+                  <button type="submit" class="btn btn-primary w-100" :disabled="submitLoading || !isPasswordFormValid">
                     <i class="bi bi-save me-1"></i>
                     {{ submitLoading ? '提交中...' : '确认修改' }}
                   </button>
@@ -413,55 +359,125 @@ const passwordStrengthClass = ref('')
 const passwordStrengthWidth = ref('0%')
 const passwordStrengthTextClass = ref('')
 
-// 模态框实例引用（保持不变）
+// 模态框实例引用（修复：使用正确的 ref 名称）
 const emailModalRef = ref<HTMLElement | null>(null);
 const passwordModalRef = ref<HTMLElement | null>(null);
 
-// 模态框实例（类型改为 any，或不声明类型）
-let emailModal: any = null;
-let passwordModal: any = null;
+// 模态框实例
+const emailModal = ref<any>(null);
+const passwordModal = ref<any>(null);
+
+// 模态框实例（修复：使用不同的变量名）
+const emailModalInstance = ref<any>(null);
+const passwordModalInstance = ref<any>(null);
 
 // 初始化模态框
 onMounted(() => {
-    
-// 初始化模态框（关键修改：用 bootstrap.Modal）
-   if (emailModalRef.value) {
-    emailModal = new bootstrap.Modal(emailModalRef.value, {
-      backdrop: 'static',
-      keyboard: false
-    });
-  }
+  // 添加延迟确保 Bootstrap 完全加载
+  setTimeout(() => {
+    // 检查 Bootstrap 是否已加载
+    if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+      console.error('Bootstrap 未加载或 Modal 组件不可用，请检查 CDN 引入')
+      showToast('error', '系统组件加载失败，请刷新页面')
+      return
+    }
 
-  if (passwordModalRef.value) {
-    passwordModal = new bootstrap.Modal(passwordModalRef.value, {
-      backdrop: 'static',
-      keyboard: false
-    });
-  }
+    // 调试信息
+    console.log('Bootstrap Modal 可用:', bootstrap.Modal)
+    console.log('emailModal DOM 元素:', emailModal.value)
+    console.log('passwordModal DOM 元素:', passwordModal.value)
 
-  // 刷新验证码
-  refreshEmailVerifyCode()
-  refreshPasswordVerifyCode()
+    // 初始化模态框实例
+    if (emailModal.value) {
+      try {
+        emailModalInstance.value = new bootstrap.Modal(emailModal.value, {
+          backdrop: 'static',
+          keyboard: false
+        });
+        console.log('邮箱模态框初始化成功:', emailModalInstance.value)
+      } catch (error) {
+        console.error('邮箱模态框初始化失败:', error)
+      }
+    }
+
+    if (passwordModal.value) {
+      try {
+        passwordModalInstance.value = new bootstrap.Modal(passwordModal.value, {
+          backdrop: 'static',
+          keyboard: false
+        });
+        console.log('密码模态框初始化成功:', passwordModalInstance.value)
+      } catch (error) {
+        console.error('密码模态框初始化失败:', error)
+      }
+    }
+
+    // 刷新验证码
+    refreshEmailVerifyCode()
+    refreshPasswordVerifyCode()
+  }, 100) // 延迟 100ms 确保 Bootstrap 加载完成
 })
 
 // 新增：打开修改邮箱模态框
 const openEmailModal = () => {
-  emailModal?.show()
+  if (!emailModalInstance.value) {
+    console.error('邮箱模态框实例未初始化:', emailModalInstance.value)
+    showToast('error', '模态框未初始化，请刷新页面')
+    return
+  }
+
+  // 检查 show 方法是否存在
+  if (typeof emailModalInstance.value.show !== 'function') {
+    console.error('emailModalInstance.show 不是函数:', emailModalInstance.value)
+    showToast('error', '模态框功能异常，请刷新页面')
+    return
+  }
+
+  try {
+    emailModalInstance.value.show()
+    console.log('邮箱模态框成功打开')
+  } catch (error) {
+    console.error('打开邮箱模态框失败:', error)
+    showToast('error', '打开模态框失败，请刷新页面')
+  }
 }
 
 // 新增：打开修改密码模态框
 const openPasswordModal = () => {
-  passwordModal?.show()
+  if (!passwordModalInstance.value) {
+    console.error('密码模态框实例未初始化:', passwordModalInstance.value)
+    showToast('error', '模态框未初始化，请刷新页面')
+    return
+  }
+
+  // 检查 show 方法是否存在
+  if (typeof passwordModalInstance.value.show !== 'function') {
+    console.error('passwordModalInstance.show 不是函数:', passwordModalInstance.value)
+    showToast('error', '模态框功能异常，请刷新页面')
+    return
+  }
+
+  try {
+    passwordModalInstance.value.show()
+    console.log('密码模态框成功打开')
+  } catch (error) {
+    console.error('打开密码模态框失败:', error)
+    showToast('error', '打开模态框失败，请刷新页面')
+  }
 }
 
 // 新增：关闭模态框并重置表单
 const closeEmailModal = () => {
-  emailModal?.hide()
+  if (emailModalInstance.value) {
+    emailModalInstance.value.hide()
+  }
   resetEmailForm()
 }
 
 const closePasswordModal = () => {
-  passwordModal?.hide()
+  if (passwordModalInstance.value) {
+    passwordModalInstance.value.hide()
+  }
   resetPasswordForm()
 }
 
