@@ -36,6 +36,7 @@
                 <i class="bi bi-info-circle me-1"></i>
                 遇到问题？请<a href="https://yt437700.top" target="_blank" class="text-decoration-none">联系管理员获得技术支持</a>
             </small>
+            <div><small><a href="/">返回主页</a></small></div>
         </div>
     </div>
 </template>
