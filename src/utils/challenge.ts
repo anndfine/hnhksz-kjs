@@ -117,6 +117,12 @@ export async function computeChallengeResponse(
 ): Promise<{ response: string, challenge: string }> {
     const result = await computeChallenge();
     console.log(result)
+    if (!result.success) {
+        if (result.error) {
+            throw new Error(`安全验证失败：${result.error}`)
+        }
+        throw new Error('安全验证失败：未知错误')
+    }
     if (result.response && result.challenge) {
         return {
             response: result.response!,
