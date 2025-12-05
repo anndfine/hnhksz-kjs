@@ -532,7 +532,7 @@ export class ComputeChallenge {
         const requiredZeros = difficultyConfig.zeros;
         const maxTime = difficultyConfig.maxTime;
 
-        this.updateUI('computing', '该操作根据设备性能而异，可能需要数秒到十几秒时间');
+        this.updateUI('computing', '完成时间根据设备性能以及不同难度而异');
 
         let nonce = 0;
         let totalHashesComputed = 0;
