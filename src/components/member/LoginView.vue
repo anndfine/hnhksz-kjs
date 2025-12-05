@@ -31,7 +31,7 @@
             {{ localError }}
         </div>
 
-        <div class="login-footer mt-4">
+        <div class="login-footer mt-2">
             <small class="text-muted">
                 <i class="bi bi-info-circle me-1"></i>
                 遇到问题？请<a href="https://yt437700.top" target="_blank" class="text-decoration-none">联系管理员获得技术支持</a>
@@ -103,8 +103,8 @@ onMounted(() => {
 <style scoped>
 .login-card {
     background: white;
-    padding: 40px;
-    border-radius: 16px;
+    padding: 30px;
+    border-radius: 8px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     width: 100%;
     max-width: 400px;
@@ -113,7 +113,7 @@ onMounted(() => {
 
 .login-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 }
 
 .login-icon {
@@ -162,6 +162,6 @@ onMounted(() => {
 .login-footer {
     text-align: center;
     border-top: 1px solid #e9ecef;
-    padding-top: 20px;
+    padding-top: 10px;
 }
 </style>
