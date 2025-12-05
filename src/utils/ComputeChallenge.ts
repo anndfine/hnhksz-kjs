@@ -23,6 +23,7 @@ export class ComputeChallenge {
     private currentChallenge: ServerChallenge | null = null;
     private isComputing: boolean = false;
     private computationStartTime: number = 0;
+    private abortController: AbortController | null = null;
 
     // 在构造函数中添加合理的配置
     private readonly difficultyConfig = {
@@ -48,6 +49,7 @@ export class ComputeChallenge {
 
         try {
             this.isComputing = true;
+            this.abortController = new AbortController();
 
             // 获取挑战数据
             this.currentChallenge = challengeData || await this.fetchChallengeFromServer();
@@ -78,19 +80,6 @@ export class ComputeChallenge {
      * 从服务器获取挑战数据
      */
     private async fetchChallengeFromServer(): Promise<ServerChallenge> {
-        // 临时使用JSON填充，实际应从服务器获取
-        // const tempChallenge: ServerChallenge = {
-        //     challenge: `anubis_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`,
-        //     difficulty: 3, // 默认中等难度
-        //     timestamp: Date.now(),
-        //     expires: Date.now() + 600000 // 10分钟过期
-        // };
-
-        // // 模拟网络请求延迟
-        // await new Promise(resolve => setTimeout(resolve, 500));
-
-        // return tempChallenge;
-
         // 1. 获取挑战
         const challengeResponse = await fetch(`${apinodes[0]!.domain}/api/auth/challenge`);
         const challengeData = await challengeResponse.json();
@@ -134,14 +123,17 @@ export class ComputeChallenge {
             <div class="compute-modal-overlay">
                 <div class="compute-modal-content">
                     <div class="compute-modal-header">
-                        <div class="compute-shield-icon">🛡️</div>
-                        <h3>安全验证</h3>
+                        <div class="compute-header-title">
+                            <h3>安全验证</h3>
+                            <button class="compute-close-btn" aria-label="关闭">&times;</button>
+                        </div>
+                        <p>此验证用于防止自动化攻击爆破</p>
                     </div>
                     <div class="compute-modal-body">
                         <div class="compute-challenge-container">
                             <div class="compute-loading">
                                 <div class="compute-spinner"></div>
-                                <p class="compute-status">初始化安全计算...</p>
+                                <p class="compute-status">正在初始化安全计算...</p>
                             </div>
                             <div class="compute-progress-area">
                                 <div class="compute-progress">
@@ -153,10 +145,10 @@ export class ComputeChallenge {
                                     <span class="compute-hashrate">速度: 0 H/s</span>
                                 </div>
                             </div>
+                            <div class="compute-controls">
+                                <button class="compute-cancel-btn">终止计算</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="compute-modal-footer">
-                        <small>此验证用于防止自动化攻击，请耐心等待</small>
                     </div>
                 </div>
             </div>
@@ -165,9 +157,43 @@ export class ComputeChallenge {
         document.body.appendChild(this.modalElement);
         this.applyStyles();
 
+        // 添加事件监听器
+        this.setupEventListeners();
+
         // 显示挑战信息
         if (this.currentChallenge) {
             this.updateChallengeInfo();
+        }
+    }
+
+    /**
+     * 设置事件监听器
+     */
+    private setupEventListeners(): void {
+        if (!this.modalElement) return;
+
+        // 关闭按钮
+        const closeBtn = this.modalElement.querySelector('.compute-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.abort());
+        }
+
+        // 取消/终止按钮
+        const cancelBtn = this.modalElement.querySelector('.compute-cancel-btn');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => this.abort());
+        }
+
+        // ESC键关闭
+        document.addEventListener('keydown', this.handleKeydown.bind(this));
+    }
+
+    /**
+     * 处理键盘事件
+     */
+    private handleKeydown(event: KeyboardEvent): void {
+        if (event.key === 'Escape') {
+            this.abort();
         }
     }
 
@@ -194,68 +220,84 @@ export class ComputeChallenge {
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.7);
-                backdrop-filter: blur(8px);
+                background: rgba(0, 0, 0, 0.75);
+                backdrop-filter: blur(4px);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                animation: compute-fadeIn 0.3s ease;
+                animation: compute-fadeIn 0.2s ease;
             }
 
             .compute-modal-content {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 20px;
+                background: white;
+                border-radius: 12px;
                 padding: 0;
                 width: 90%;
-                max-width: 480px;
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-                animation: compute-slideUp 0.4s ease;
+                max-width: 420px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                animation: compute-slideUp 0.3s ease;
                 overflow: hidden;
-                color: white;
+                color: #333;
             }
 
             .compute-modal-header {
-                background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
-                padding: 30px;
-                text-align: center;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 20px 24px 16px;
+                border-bottom: 1px solid #e5e7eb;
+                background: #f8fafc;
             }
 
-            .compute-shield-icon {
-                font-size: 3rem;
-                margin-bottom: 15px;
-                filter: drop-shadow(0 4px 8px rgba(0, 0, 255, 0.3));
+            .compute-header-title {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
             }
 
             .compute-modal-header h3 {
-                margin: 0 0 8px 0;
-                font-size: 1.5rem;
+                margin: 0;
+                font-size: 18px;
                 font-weight: 600;
-                color: #e2e8f0;
+                color: #1f2937;
+            }
+
+            .compute-close-btn {
+                background: none;
+                border: none;
+                font-size: 24px;
+                line-height: 1;
+                color: #6b7280;
+                cursor: pointer;
+                padding: 4px 8px;
+                border-radius: 4px;
+                transition: all 0.2s;
+            }
+
+            .compute-close-btn:hover {
+                background: #f3f4f6;
+                color: #374151;
             }
 
             .compute-modal-header p {
                 margin: 0;
-                opacity: 0.8;
-                font-size: 0.95rem;
-                color: #94a3b8;
+                font-size: 14px;
+                color: #6b7280;
+                line-height: 1.4;
             }
 
             .compute-modal-body {
-                padding: 30px;
+                padding: 24px;
             }
 
             .compute-modal-footer {
-                padding: 20px 30px;
-                background: rgba(0, 0, 0, 0.3);
+                padding: 16px 24px;
+                background: #f9fafb;
                 text-align: center;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                border-top: 1px solid #e5e7eb;
             }
 
             .compute-modal-footer small {
-                color: #64748b;
-                font-size: 0.85rem;
+                color: #9ca3af;
+                font-size: 13px;
             }
 
             .compute-challenge-container {
@@ -263,88 +305,90 @@ export class ComputeChallenge {
             }
 
             .compute-loading {
-                margin-bottom: 25px;
+                margin-bottom: 24px;
             }
 
             .compute-spinner {
-                width: 50px;
-                height: 50px;
-                border: 3px solid rgba(255, 255, 255, 0.1);
+                width: 40px;
+                height: 40px;
+                border: 3px solid #e5e7eb;
                 border-top: 3px solid #3b82f6;
                 border-radius: 50%;
                 animation: compute-spin 1s linear infinite;
-                margin: 0 auto 20px;
-                box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+                margin: 0 auto 16px;
             }
 
             .compute-status {
                 margin: 0;
-                font-size: 1rem;
-                color: #e2e8f0;
+                font-size: 15px;
+                color: #374151;
                 font-weight: 500;
             }
 
             .compute-progress-area {
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 12px;
-                padding: 20px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                margin-bottom: 20px;
             }
 
             .compute-progress {
                 width: 100%;
-                height: 8px;
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 4px;
+                height: 6px;
+                background: #e5e7eb;
+                border-radius: 3px;
                 overflow: hidden;
-                margin-bottom: 15px;
+                margin-bottom: 12px;
             }
 
             .compute-progress-bar {
                 height: 100%;
-                background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-                border-radius: 4px;
+                background: #3b82f6;
+                border-radius: 3px;
                 transition: width 0.3s ease;
                 width: 0%;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .compute-progress-bar::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-                animation: compute-shine 2s infinite;
             }
 
             .compute-stats {
                 display: flex;
                 justify-content: space-between;
-                font-size: 0.85rem;
-                color: #94a3b8;
+                font-size: 13px;
+                color: #6b7280;
             }
 
             .compute-stats span {
-                background: rgba(255, 255, 255, 0.05);
+                background: #f3f4f6;
                 padding: 4px 8px;
+                border-radius: 4px;
+            }
+
+            .compute-controls {
+                margin-top: 20px;
+            }
+
+            .compute-cancel-btn {
+                background: #f3f4f6;
+                border: 1px solid #d1d5db;
+                color: #374151;
+                padding: 8px 16px;
+                font-size: 14px;
                 border-radius: 6px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .compute-cancel-btn:hover {
+                background: #e5e7eb;
+                border-color: #9ca3af;
             }
 
             .compute-success {
                 color: #10b981;
-                font-size: 2rem;
-                margin-bottom: 15px;
+                font-size: 40px;
+                margin-bottom: 12px;
             }
 
             .compute-error {
                 color: #ef4444;
-                font-size: 2rem;
-                margin-bottom: 15px;
+                font-size: 40px;
+                margin-bottom: 12px;
             }
 
             @keyframes compute-fadeIn {
@@ -355,22 +399,17 @@ export class ComputeChallenge {
             @keyframes compute-slideUp {
                 from { 
                     opacity: 0;
-                    transform: translateY(30px) scale(0.95);
+                    transform: translateY(20px);
                 }
                 to { 
                     opacity: 1;
-                    transform: translateY(0) scale(1);
+                    transform: translateY(0);
                 }
             }
 
             @keyframes compute-spin {
                 0% { transform: rotate(0deg); }
                 100% { transform: rotate(360deg); }
-            }
-
-            @keyframes compute-shine {
-                0% { left: -100%; }
-                100% { left: 100%; }
             }
         `;
         document.head.appendChild(style);
@@ -406,10 +445,11 @@ export class ComputeChallenge {
                 container.innerHTML = `
                     <div class="compute-loading">
                         <div class="compute-spinner"></div>
+                        <p class="compute-status">正在初始化安全计算...</p>
                     </div>
                     <div class="compute-progress-area">
                         <div class="compute-progress">
-                            <div class="compute-progress-bar" style="width: 10%"></div>
+                            <div class="compute-progress-bar" style="width: 5%"></div>
                         </div>
                         <div class="compute-stats">
                             <span class="compute-difficulty">难度: -</span>
@@ -417,8 +457,12 @@ export class ComputeChallenge {
                             <span class="compute-hashrate">速度: 0 H/s</span>
                         </div>
                     </div>
+                    <div class="compute-controls">
+                        <button class="compute-cancel-btn">终止计算</button>
+                    </div>
                 `;
                 this.updateChallengeInfo();
+                this.setupEventListeners();
                 break;
 
             case 'computing':
@@ -430,8 +474,10 @@ export class ComputeChallenge {
             case 'success':
                 container.innerHTML = `
                     <div class="compute-loading">
-                        <div class="compute-success">✅</div>
                         <p class="compute-status" style="color: #10b981;">${message}</p>
+                    </div>
+                    <div class="compute-controls">
+                        <button class="compute-cancel-btn" onclick="document.querySelector('.compute-close-btn')?.click()">关闭</button>
                     </div>
                 `;
                 break;
@@ -439,8 +485,10 @@ export class ComputeChallenge {
             case 'error':
                 container.innerHTML = `
                     <div class="compute-loading">
-                        <div class="compute-error">❌</div>
                         <p class="compute-status" style="color: #ef4444;">${message}</p>
+                    </div>
+                    <div class="compute-controls">
+                        <button class="compute-cancel-btn" onclick="document.querySelector('.compute-close-btn')?.click()">关闭</button>
                     </div>
                 `;
                 break;
@@ -473,6 +521,7 @@ export class ComputeChallenge {
     /**
      * 执行工作量证明计算
      */
+
     private async executeProofOfWork(): Promise<ComputeResult> {
         if (!this.currentChallenge) {
             return { success: false, error: "没有可用的挑战数据" };
@@ -481,79 +530,169 @@ export class ComputeChallenge {
         this.computationStartTime = Date.now();
         const difficultyConfig = this.difficultyConfig[this.currentChallenge.difficulty as keyof typeof this.difficultyConfig];
         const requiredZeros = difficultyConfig.zeros;
-        const maxTime = difficultyConfig.maxTime; // 获取配置的最大时间
+        const maxTime = difficultyConfig.maxTime;
 
-        // this.updateUI('computing', `正在进行安全计算 (需要${requiredZeros}个前导零)...`);
+        this.updateUI('computing', '完成时间根据设备性能以及不同难度而异');
 
-        this.updateUI('computing', '');
         let nonce = 0;
-        let hashesComputed = 0;
+        let totalHashesComputed = 0;
         const startTime = Date.now();
         let lastUpdateTime = startTime;
 
-        // 创建中止控制器
-        const abortController = new AbortController();
+        // 🔥 动态调整批量大小
+        let batchSize = 1000; // 初始批量大小
 
         try {
             while (true) {
-                // 组合挑战字符串和nonce
-                const data = this.currentChallenge.challenge + nonce.toString();
-                const hash = await this.computeSHA256(data);
-                hashesComputed++;
-                nonce++;
+                if (this.abortController?.signal.aborted) {
+                    throw new Error("计算被用户中止");
+                }
 
-                // 检查是否满足难度要求
-                if (hash.startsWith('0'.repeat(requiredZeros))) {
+                // 🔥 使用批量计算方法
+                const batchResult = await this.computeSHA256Batch(
+                    this.currentChallenge.challenge,
+                    nonce,
+                    batchSize
+                );
+
+                totalHashesComputed += batchSize;
+                nonce += batchSize;
+
+                // 检查是否找到答案
+                if (batchResult.foundIndex !== null && batchResult.foundHash) {
+                    const foundNonce = nonce - batchSize + batchResult.foundIndex;
+                    const foundData = this.currentChallenge.challenge + foundNonce.toString();
                     const computationTime = (Date.now() - this.computationStartTime) / 1000;
 
                     this.updateUI('success', `验证成功！用时 ${computationTime.toFixed(1)} 秒`);
-
-                    // 短暂显示成功状态
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await new Promise(resolve => setTimeout(resolve, 1500));
 
                     return {
                         success: true,
                         challenge: this.currentChallenge.challenge,
-                        response: data,
-                        nonce,
-                        hash,
+                        response: foundData,
+                        nonce: foundNonce,
+                        hash: batchResult.foundHash,
                         computationTime
                     };
                 }
 
-                // 定期更新UI（每100毫秒或每1000次计算）
-                const currentTime = Date.now();
-                if (currentTime - lastUpdateTime > 100 || hashesComputed % 1000 === 0) {
-                    const elapsedTime = (currentTime - startTime) / 1000;
-                    const hashesPerSecond = Math.round(hashesComputed / elapsedTime);
+                // 🔥 动态调整批量大小（根据性能）
+                if (totalHashesComputed % 10000 === 0) {
+                    const elapsedTime = (Date.now() - startTime) / 1000;
+                    const hashesPerSecond = totalHashesComputed / elapsedTime;
 
-                    // 估算进度（基于统计概率）
-                    const probability = 1 / Math.pow(16, requiredZeros);
-                    const expectedTotalHashes = 1 / probability;
-                    const progress = Math.min(95, (nonce / expectedTotalHashes) * 100);
-
-                    this.updateProgress(progress, hashesPerSecond, elapsedTime);
-                    lastUpdateTime = currentTime;
-
-                    // 让出主线程避免阻塞
-                    await new Promise(resolve => setTimeout(resolve, 0));
+                    // 如果性能好，增加批量大小
+                    if (hashesPerSecond > 50000 && batchSize < 5000) {
+                        batchSize = Math.min(5000, batchSize * 2);
+                    }
+                    // 如果性能差，减少批量大小
+                    else if (hashesPerSecond < 10000 && batchSize > 100) {
+                        batchSize = Math.max(100, Math.floor(batchSize / 2));
+                    }
                 }
 
-                // 检查超时（60秒超时）
+                const currentTime = Date.now();
+                // 🔥 异步更新UI（不阻塞计算）
+                const shouldUpdateUI = (() => {
+                    return currentTime - lastUpdateTime > 160;
+                })();
+
+                if (shouldUpdateUI) {
+                    // 使用箭头函数保持 this 上下文
+                    setTimeout(() => {
+                        const currentTime = Date.now();
+                        const elapsedTime = (currentTime - startTime) / 1000;
+                        const hashesPerSecond = Math.round(totalHashesComputed / elapsedTime);
+
+                        // 估算进度
+                        const probability = 1 / Math.pow(16, requiredZeros);
+                        const expectedTotalHashes = 1 / probability;
+                        const progress = Math.min(95, (nonce / expectedTotalHashes) * 100);
+
+                        this.updateProgress(progress, hashesPerSecond, elapsedTime);
+                        lastUpdateTime = currentTime;
+                    }, 1); // 1ms延迟，让出主线程
+                }
+
+                // 检查超时
                 if (currentTime - startTime > maxTime) {
                     throw new Error("计算超时，请重试");
-                }
-
-                // 检查中止信号
-                if (abortController.signal.aborted) {
-                    throw new Error("计算被用户中止");
                 }
             }
         } catch (error) {
             this.updateUI('error', error instanceof Error ? error.message : "计算失败");
+            await new Promise(resolve => setTimeout(resolve, 1500));
             throw error;
         }
     }
+
+    /**
+     * 批量计算SHA-256哈希（提高GPU利用率）
+     */
+    private async computeSHA256Batch(challenge: string, startNonce: number, batchSize: number): Promise<{
+        hashes: string[],
+        foundIndex: number | null,
+        foundHash: string | null
+    }> {
+        const encoder = new TextEncoder();
+        const promises: Promise<string>[] = [];
+
+        // 检查是否有当前挑战数据
+        if (!this.currentChallenge) {
+            throw new Error("当前挑战数据不存在");
+        }
+
+        const currentDifficulty = this.currentChallenge.difficulty;
+        const requiredZeros = this.difficultyConfig[currentDifficulty as keyof typeof this.difficultyConfig].zeros;
+
+        // 准备所有计算任务
+        for (let i = 0; i < batchSize; i++) {
+            const data = challenge + (startNonce + i).toString();
+            const dataBuffer = encoder.encode(data);
+
+            // 创建Promise但不立即await
+            promises.push(
+                crypto.subtle.digest('SHA-256', dataBuffer)
+                    .then(hashBuffer =>
+                        Array.from(new Uint8Array(hashBuffer))
+                            .map(b => b.toString(16).padStart(2, '0'))
+                            .join('')
+                    )
+            );
+        }
+
+        // 🔥 并行计算所有哈希
+        const hashes = await Promise.all(promises);
+
+        // 检查是否有符合条件的哈希
+        for (let i = 0; i < hashes.length; i++) {
+            const currentHash = hashes[i];
+
+            // 检查是否为有效的字符串
+            if (!currentHash || typeof currentHash !== 'string') {
+                console.warn(`无效的哈希值 at index ${i}:`, currentHash);
+                continue; // 跳过无效值
+            }
+
+            // 直接检查难度
+            if (currentHash.startsWith('0'.repeat(requiredZeros))) {
+                return {
+                    hashes,
+                    foundIndex: i,
+                    foundHash: currentHash  // currentHash 已确认是 string
+                };
+            }
+        }
+
+        return {
+            hashes,
+            foundIndex: null,
+            foundHash: null  // 🔥 明确返回 null
+        };
+    }
+
+
 
     /**
      * 计算SHA-256哈希
@@ -573,10 +712,13 @@ export class ComputeChallenge {
      */
     private cleanup(): void {
         this.isComputing = false;
+        // 移除键盘事件监听器
+        document.removeEventListener('keydown', this.handleKeydown.bind(this));
+
         // 不立即销毁模态框，让用户看到最终状态
         setTimeout(() => {
             this.destroyModal();
-        }, 100);
+        }, 1000); // 成功或错误状态显示1秒后关闭
     }
 
     /**
@@ -598,7 +740,11 @@ export class ComputeChallenge {
      * 强制中止计算
      */
     abort(): void {
-        this.cleanup();
+        if (this.abortController) {
+            this.abortController.abort();
+        }
+        this.updateUI('error', '计算已终止');
+        setTimeout(() => this.destroyModal(), 1500);
     }
 }
 
@@ -607,75 +753,6 @@ let computeChallengeInstance: ComputeChallenge | null = null;
 
 /**
  * 全局调用函数 - 执行客户端工作量证明计算
- * 
- * @param challengeData - 可选的挑战数据。如果提供，将使用此数据执行计算；
- *                        如果未提供，将自动从服务器获取挑战数据
- * 
- * @returns Promise<ComputeResult> - 返回计算结果的Promise
- * 
- * @example
- * // 方式1: 自动从服务器获取挑战
- * const result = await computeChallenge();
- * if (result.success) {
- *   // 使用 result.challenge, result.nonce, result.hash 提交到服务器
- * }
- * 
- * @example
- * // 方式2: 使用预定义的挑战数据
- * const result = await computeChallenge({
- *   challenge: "a-ciallo_1234567890_abc123",
- *   difficulty: 3,
- *   timestamp: Date.now(),
- *   expires: Date.now() + 600000
- * });
- * 
- * @example
- * // 完整登录集成示例
- * async function loginWithChallenge(username: string, password: string) {
- *   // 1. 执行安全挑战计算
- *   const challengeResult = await computeChallenge();
- *   
- *   if (!challengeResult.success) {
- *     throw new Error(`安全验证失败: ${challengeResult.error}`);
- *   }
- * 
- *   // 2. 使用挑战结果进行登录
- *   const loginData = {
- *     username,
- *     password,
- *     challenge: challengeResult.challenge!,     // 挑战字符串
- *     nonce: challengeResult.nonce!,             // 找到的nonce值
- *     proof: challengeResult.hash!,              // 计算出的哈希证明
- *     computationTime: challengeResult.computationTime! // 计算用时
- *   };
- *   
- *   return await submitLogin(loginData);
- * }
- * 
- * @remarks
- * 此函数会：
- * 1. 显示全屏模态框进行可视化计算
- * 2. 执行SHA-256工作量证明计算
- * 3. 根据服务器下发的难度要求寻找符合条件的nonce
- * 4. 返回包含完整验证数据的结果
- * 
- * 成功时返回的数据包含：
- * - challenge: string - 原始挑战字符串，用于服务器验证匹配
- * - nonce: number - 计算出的nonce值，与challenge组合满足难度要求
- * - hash: string - 完整的SHA-256哈希值，格式为16进制字符串
- * - computationTime: number - 计算用时（秒），用于服务器验证时间合理性
- * 
- * 失败时返回：
- * - success: false
- * - error: string - 详细的错误信息
- * 
- * @throws 不会抛出异常，所有错误都通过返回值的error字段处理
- * 
- * @see ComputeResult - 返回结果的完整类型定义
- * @see ServerChallenge - 挑战数据的类型定义
- * 
- * @version 1.0.0
- * @since 2024-01-01
  */
 export async function computeChallenge(challengeData?: ServerChallenge): Promise<ComputeResult> {
     if (!computeChallengeInstance) {

@@ -162,19 +162,9 @@
 
                 <!-- 验证码 -->
                 <div class="col-12">
-                  <label for="emailVerifyCode" class="form-label">验证码</label>
+                  <!-- <label for="emailVerifyCode" class="form-label">验证码</label> -->
                   <div class="input-group">
-                    <input type="text" class="form-control" id="emailVerifyCode" v-model="emailForm.verifyCode"
-                      placeholder="请输入验证码" required :disabled="submitLoading" />
-                    <span class="input-group-text" style="cursor: pointer;" @click="refreshEmailVerifyCode"
-                      :disabled="submitLoading">
-                      <i class="bi bi-arrow-clockwise"></i> 刷新
-                    </span>
-                  </div>
-                  <!-- 验证码图片（示例） -->
-                  <div class="mt-2">
-                    <img :src="emailVerifyCodeUrl" alt="验证码" class="img-thumbnail" style="cursor: pointer;"
-                      @click="refreshEmailVerifyCode">
+                    <input type="text" disabled class="form-control disabled" placeholder="无需验证码" />
                   </div>
                 </div>
 
@@ -263,19 +253,9 @@
 
                 <!-- 验证码 -->
                 <div class="col-12">
-                  <label for="passwordVerifyCode" class="form-label">验证码</label>
+                  <!-- <label for="passwordVerifyCode" class="form-label">验证码</label> -->
                   <div class="input-group">
-                    <input type="text" class="form-control" id="passwordVerifyCode" v-model="passwordForm.verifyCode"
-                      placeholder="请输入验证码" required :disabled="submitLoading" />
-                    <span class="input-group-text" style="cursor: pointer;" @click="refreshPasswordVerifyCode"
-                      :disabled="submitLoading">
-                      <i class="bi bi-arrow-clockwise"></i> 刷新
-                    </span>
-                  </div>
-                  <!-- 验证码图片（示例） -->
-                  <div class="mt-2">
-                    <img :src="passwordVerifyCodeUrl" alt="验证码" class="img-thumbnail" style="cursor: pointer;"
-                      @click="refreshPasswordVerifyCode">
+                    <input type="text" disabled class="form-control disabled" placeholder="无需验证码" />
                   </div>
                 </div>
 
@@ -303,7 +283,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuth } from './useAuth.ts'
 import { showToast } from '@/utils/toast.ts'
 // 无需 import { Modal } from 'bootstrap'，直接用全局变量
-
+import { computeChallenge } from '@/utils/ComputeChallenge';
 // 导入认证相关功能
 const { logout } = useAuth()
 
@@ -348,9 +328,6 @@ const passwordForm = ref({
   verifyCode: ''
 })
 
-// 新增：验证码图片地址（示例）
-const emailVerifyCodeUrl = ref('')
-const passwordVerifyCodeUrl = ref('')
 
 // 密码强度相关状态
 const passwordStrength = ref(0)
@@ -411,10 +388,6 @@ onMounted(() => {
         console.error('密码模态框初始化失败:', error)
       }
     }
-
-    // 刷新验证码
-    refreshEmailVerifyCode()
-    refreshPasswordVerifyCode()
   }, 100) // 延迟 100ms 确保 Bootstrap 加载完成
 })
 
@@ -488,7 +461,6 @@ const resetEmailForm = () => {
     newEmail: '',
     verifyCode: ''
   }
-  refreshEmailVerifyCode()
 }
 
 const resetPasswordForm = () => {
@@ -499,21 +471,8 @@ const resetPasswordForm = () => {
     verifyCode: ''
   }
   passwordStrength.value = 0
-  refreshPasswordVerifyCode()
 }
 
-// 新增：刷新验证码（示例）
-const refreshEmailVerifyCode = () => {
-  // 实际项目中替换为真实的验证码接口
-  emailVerifyCodeUrl.value = `https://picsum.photos/200/80?random=${Date.now()}`
-  emailForm.value.verifyCode = ''
-}
-
-const refreshPasswordVerifyCode = () => {
-  // 实际项目中替换为真实的验证码接口
-  passwordVerifyCodeUrl.value = `https://picsum.photos/200/80?random=${Date.now()}`
-  passwordForm.value.verifyCode = ''
-}
 
 // 检查密码强度
 const checkPasswordStrength = () => {
@@ -567,8 +526,8 @@ const isEmailFormValid = computed(() => {
   return (
     emailForm.value.oldPassword.trim() !== '' &&
     emailForm.value.newEmail.trim() !== '' &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailForm.value.newEmail) &&
-    emailForm.value.verifyCode.trim() !== ''
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailForm.value.newEmail)
+    // && emailForm.value.verifyCode.trim() !== ''
   )
 })
 
@@ -579,8 +538,8 @@ const isPasswordFormValid = computed(() => {
     passwordForm.value.newPassword.trim() !== '' &&
     passwordForm.value.newPassword.length >= 8 &&
     passwordForm.value.confirmPassword.trim() !== '' &&
-    passwordForm.value.newPassword === passwordForm.value.confirmPassword &&
-    passwordForm.value.verifyCode.trim() !== ''
+    passwordForm.value.newPassword === passwordForm.value.confirmPassword
+    // && passwordForm.value.verifyCode.trim() !== ''
   )
 })
 
@@ -598,6 +557,17 @@ const handleChangeEmail = async () => {
       newEmail: emailForm.value.newEmail,
       verifyCode: emailForm.value.verifyCode
     })
+    const Challengeresult = await computeChallenge();
+    if (!Challengeresult.success) {
+      if (Challengeresult.error) {
+        throw new Error(`安全验证失败：${Challengeresult.error}`)
+      }
+      throw new Error('安全验证失败：未知错误')
+    }
+    if (Challengeresult.response && Challengeresult.challenge) {
+      console.log(`response: ${Challengeresult.response}`)
+      console.debug(`challenge: ${Challengeresult.challenge}`)
+    }
 
     // 模拟接口请求延迟
     await new Promise(resolve => setTimeout(resolve, 1500))
