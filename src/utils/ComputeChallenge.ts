@@ -592,19 +592,27 @@ export class ComputeChallenge {
                     }
                 }
 
-                // 🔥 减少UI更新频率（300ms更新一次）
                 const currentTime = Date.now();
-                if (currentTime - lastUpdateTime > 300) {
-                    const elapsedTime = (currentTime - startTime) / 1000;
-                    const hashesPerSecond = Math.round(totalHashesComputed / elapsedTime);
+                // 🔥 异步更新UI（不阻塞计算）
+                const shouldUpdateUI = (() => {
+                    return currentTime - lastUpdateTime > 160;
+                })();
 
-                    // 估算进度
-                    const probability = 1 / Math.pow(16, requiredZeros);
-                    const expectedTotalHashes = 1 / probability;
-                    const progress = Math.min(95, (nonce / expectedTotalHashes) * 100);
+                if (shouldUpdateUI) {
+                    // 使用箭头函数保持 this 上下文
+                    setTimeout(() => {
+                        const currentTime = Date.now();
+                        const elapsedTime = (currentTime - startTime) / 1000;
+                        const hashesPerSecond = Math.round(totalHashesComputed / elapsedTime);
 
-                    this.updateProgress(progress, hashesPerSecond, elapsedTime);
-                    lastUpdateTime = currentTime;
+                        // 估算进度
+                        const probability = 1 / Math.pow(16, requiredZeros);
+                        const expectedTotalHashes = 1 / probability;
+                        const progress = Math.min(95, (nonce / expectedTotalHashes) * 100);
+
+                        this.updateProgress(progress, hashesPerSecond, elapsedTime);
+                        lastUpdateTime = currentTime;
+                    }, 1); // 1ms延迟，让出主线程
                 }
 
                 // 检查超时
