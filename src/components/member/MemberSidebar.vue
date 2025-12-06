@@ -94,7 +94,7 @@ const tabs: Tab[] = [
     position: fixed;
     top: 60px;
     left: 0;
-    transition: all 0.3s ease;
+    transition: all 0.5s ease;
     z-index: 1000;
     display: flex;
     flex-direction: column;
