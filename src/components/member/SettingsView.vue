@@ -4,7 +4,8 @@
     <div class="row mb-4">
       <div class="col-12">
         <h4 class="text-primary mb-2">账户与系统设置</h4>
-        <p class="text-muted mb-0">管理您的账户信息和系统偏好设置</p>
+        <p class="text-muted mb-0">管理账户信息和偏好设置</p>
+        <small class="text-muted mb-0">DEV_0.53.0.1</small>
       </div>
     </div>
 
@@ -40,12 +41,18 @@
             <!-- 快速操作按钮 -->
             <div class="quick-actions mb-4">
               <h6 class="text-muted mb-3">快速操作</h6>
-              <div class="d-grid gap-2 d-md-flex">
-                <button class="btn btn-outline-primary me-2" @click="switchToProfile">
+              <div class="d-grid gap-2 d-md-flex mb-2">
+                <button class="btn btn-outline-primary col" @click="emit('tabChange', 'editprofile')">
                   <i class="bi bi-person me-1"></i>编辑资料
                 </button>
-                <button class="btn btn-outline-secondary" @click="showExportModal">
+                <button class="btn btn-outline-secondary col" @click="showExportModal">
                   <i class="bi bi-download me-1"></i>导出数据
+                </button>
+                <button class="btn btn-outline-primary col" @click="openEmailModal">
+                  <i class="bi bi-envelope me-1"></i>修改邮箱
+                </button>
+                <button class="btn btn-outline-primary col" @click="openPasswordModal">
+                  <i class="bi bi-key me-1"></i>修改密码
                 </button>
               </div>
             </div>
@@ -70,15 +77,6 @@
                 </div>
               </div>
 
-              <!-- 新增：修改邮箱和密码的触发按钮 -->
-              <div class="d-grid gap-2 d-md-flex mb-4">
-                <button class="btn btn-outline-primary" @click="openEmailModal">
-                  <i class="bi bi-envelope me-1"></i>修改邮箱
-                </button>
-                <button class="btn btn-outline-primary" @click="openPasswordModal">
-                  <i class="bi bi-key me-1"></i>修改密码
-                </button>
-              </div>
 
             </div>
           </div>
@@ -304,6 +302,7 @@ const props = defineProps<{
 
 // 定义emits
 const emit = defineEmits<{
+  tabChange: [tab: string]
   switchToProfile: []
   showExportModal: []
   showDeleteAccountModal: []
@@ -642,7 +641,7 @@ const handleLogout = async () => {
 
 // 其他方法
 const switchToProfile = () => {
-  emit('switchToProfile')
+  emit('tabChange', 'profile')
 }
 
 const showExportModal = () => {

@@ -29,14 +29,8 @@
                 <!-- 主要内容区域 -->
                 <div class="main-content" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
                     <div class="content-wrapper">
-                        <!-- 页面标题栏 -->
-                        <div class="page-header mb-4 d-lg-none">
-                            <!-- <h1 class="page-title">{{ pageTitles[activeTab] }}</h1>
-                            <p class="page-subtitle text-muted">{{ pageSubtitles[activeTab] }}</p> -->
-                        </div>
-
                         <!-- 动态组件切换 -->
-                        <component :user="user" :is="currentComponent" />
+                        <component :user="user" :is="currentComponent" @tabChange="handleTabChange" />
                     </div>
                 </div>
             </div>
@@ -61,6 +55,7 @@ import DashboardView from '@/components/member/DashboardView.vue'
 import MemberNavbar from '@/components/member/MemberNavbar.vue'
 import MemberSidebar from '@/components/member/MemberSidebar.vue'
 import ProfileView from '@/components/member/ProfileView.vue'
+import EditProfileView from '@/components/member/profile/ProfileEdit.vue'
 import DevicesView from '@/components/member/DevicesView.vue'
 import AttendanceView from '@/components/member/AttendanceView.vue'
 import HelpView from '@/components/member/HelpView.vue'
@@ -68,6 +63,7 @@ import SettingsView from '@/components/member/SettingsView.vue'
 import AddDeviceModal from '@/components/member/modals/AddDeviceModal.vue'
 import ExportDataModal from '@/components/member/modals/ExportDataModal.vue'
 import DeleteAccountModal from '@/components/member/modals/DeleteAccountModal.vue'
+import ProfileEdit from '@/components/member/profile/ProfileEdit.vue'
 
 const { isAuthenticated, user, loading: authLoading, checkAuth, logout, startPolling } = useAuth()
 
@@ -109,7 +105,8 @@ const componentMap = {
     devices: DevicesView,
     attendance: AttendanceView,
     help: HelpView,
-    settings: SettingsView
+    settings: SettingsView,
+    editprofile: EditProfileView
 }
 
 const currentComponent = computed(() => {
@@ -224,18 +221,21 @@ onUnmounted(() => {
 .main-content {
     flex: 1;
     margin-left: 250px;
-    transition: margin-left 0.3s ease;
     background: white;
     min-height: 100%;
+    transition: all 0.56s ease;
 }
 
 .main-content.sidebar-collapsed {
+    transition: all 0.56s ease;
     margin-left: 64px;
 }
 
 .content-wrapper {
     padding: 24px;
+    margin-top: 4px;
     min-height: 100%;
+    transition: all 1.0s ease;
 }
 
 .page-header {
@@ -259,6 +259,8 @@ onUnmounted(() => {
 @media (max-width: 767.98px) {
     .main-content {
         margin-left: 0 !important;
+        transition: all 0.56s ease;
+        /* 为平板设备也设置过渡效果 */
     }
 
     .content-wrapper {
@@ -267,6 +269,20 @@ onUnmounted(() => {
 
     .page-title {
         font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .main-content {
+        margin-top: 64px !important;
+        transition: margin-top 1.0s ease;
+    }
+}
+
+@media (min-width: 992px) {
+    .main-content {
+        margin-top: 8px !important;
+        transition: margin-top 1.0s ease, margin-left 0.56s ease;
     }
 }
 
