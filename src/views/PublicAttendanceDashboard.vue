@@ -1,6 +1,6 @@
 <template>
+    <!-- 模板部分保持不变 -->
     <div class="dashboard">
-
         <!-- 顶部时间 -->
         <div class="time">{{ currentTime }}</div>
 
@@ -64,6 +64,16 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 
+// 定义动态项的类型
+interface DynamicItem {
+    id: number;
+    name: string;
+    time: string;
+    avatar: string;
+    action: 'checkin' | 'checkout';
+    isNew?: boolean;  // 可选属性，用于标记新记录
+}
+
 /* 时间 */
 const currentTime = ref('00:00:00')
 setInterval(() => {
@@ -84,8 +94,8 @@ const isLongDuration = computed(() => stats.value.totalDuration.length > 12)
 /* Tab */
 const currentTab = ref('dynamic')
 
-/* 动态（下面 fetchDynamic() 会填充） */
-const dynamics = ref([])
+/* 动态 */
+const dynamics = ref<DynamicItem[]>([])
 
 /* 限制条数：自动压缩 48px 高度 + 间隔 8px */
 const limitedDynamics = computed(() => {
@@ -105,7 +115,7 @@ const rank = ref([
 
 /* 模拟接口获取（可直接替换 fetch） */
 async function fetchDynamic() {
-    const data = [
+    const data: DynamicItem[] = [
         { id: 1, name: '张三', time: '14:32', avatar: '/avatar1.png', action: 'checkin' },
         { id: 2, name: '李四', time: '14:26', avatar: '/avatar2.png', action: 'checkout' },
         { id: 3, name: '王五', time: '14:15', avatar: '/avatar3.png', action: 'checkin' }
@@ -129,6 +139,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 样式保持不变 */
 /* 整体背景：深灰渐变 */
 .dashboard {
     width: 100%;
