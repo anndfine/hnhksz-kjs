@@ -219,6 +219,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
+import { apinodes } from '@/data/apinodes'
 
 interface Profile {
     id?: number
