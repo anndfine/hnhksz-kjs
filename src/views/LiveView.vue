@@ -22,9 +22,10 @@
         </nav>
 
         <main class="container-fluid py-4">
-            <div class="row g-4">
-                <!-- 左侧功能卡片 + 直播列表 -->
-                <div class="col-lg-8" v-if="activeTab !== 'live' || !isLivePage">
+            <!-- 导航模块：只在nav tab显示 -->
+            <div class="row g-4" v-if="activeTab === 'nav'">
+                <!-- 左侧功能卡片 -->
+                <div class="col-lg-8">
                     <div class="row g-3">
                         <!-- 功能卡片 -->
                         <div class="col-md-6" @click="tagChange('live')">
@@ -60,12 +61,10 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
 
                 <!-- 右侧用户信息栏 -->
-                <div class="col-lg-4" v-if="activeTab !== 'live' || !isLivePage">
+                <div class="col-lg-4">
                     <div class="card shadow-sm">
                         <div class="card-header bg-dark text-white">
                             <h5 class="card-title mb-0">
@@ -103,74 +102,78 @@
                     </div>
                 </div>
             </div>
-            <!-- 直播列表 -->
-            <div class="live-list-section mt-4"
-                v-if="activeTab === 'live' && !loading && !error && liveList.length > 0">
-                <h3><i class="bi bi-list-ul me-2"></i>直播列表</h3>
-                <div class="live-list row g-3">
-                    <div v-for="live in liveList" :key="live.id" class="col-md-6 col-lg-4" @click="showLivePage(live)"
-                        style="cursor: pointer;">
-                        <div class="card h-100 border-0 shadow-sm hover-card bg-dark text-white"
-                            :class="{ 'border-primary': currentLive?.id === live.id }">
-                            <img :src="live.thumbnail" class="card-img-top" :alt="live.title">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ live.title }}</h5>
-                                <p class="card-text">{{ live.description }}</p>
-                                <div class="d-flex justify-content-between small text-muted">
-                                    <span><i class="bi bi-eye"></i> {{ live.viewers || 0 }}</span>
-                                    <span>{{ formatTime(live.updatedAt) }}</span>
+
+            <!-- 直播列表：只在live tab且不在直播页面时显示 -->
+            <div v-if="activeTab === 'live' && !isLivePage" class="container-fluid">
+                <div class="live-list-section mt-4" v-if="!loading && !error && liveList.length > 0">
+                    <h3><i class="bi bi-list-ul me-2"></i>直播列表</h3>
+                    <div class="live-list row g-3">
+                        <div v-for="live in liveList" :key="live.id" class="col-md-6 col-lg-4"
+                            @click="showLivePage(live)" style="cursor: pointer;">
+                            <div class="card h-100 border-0 shadow-sm hover-card bg-dark text-white"
+                                :class="{ 'border-primary': currentLive?.id === live.id }">
+                                <img :src="live.thumbnail" class="card-img-top" :alt="live.title">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ live.title }}</h5>
+                                    <p class="card-text">{{ live.description }}</p>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span><i class="bi bi-eye"></i> {{ live.viewers || 0 }}</span>
+                                        <span>{{ formatTime(live.updatedAt) }}</span>
+                                    </div>
+                                    <span class="badge mt-2" :class="{
+                                        'bg-success': live.status === 'live',
+                                        'bg-warning': live.status === 'upcoming',
+                                        'bg-secondary': live.status === 'offline'
+                                    }">
+                                        {{ getStatusText(live.status) }}
+                                    </span>
                                 </div>
-                                <span class="badge mt-2" :class="{
-                                    'bg-success': live.status === 'live',
-                                    'bg-warning': live.status === 'upcoming',
-                                    'bg-secondary': live.status === 'offline'
-                                }">
-                                    {{ getStatusText(live.status) }}
-                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 视频列表（占位） -->
-            <div class="video-list-section mt-4" v-if="activeTab === 'video'">
-                <h3><i class="bi bi-film me-2"></i>视频回放</h3>
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-film display-4 mb-3"></i>
-                    <p>视频回放功能正在开发中...</p>
+                <!-- 加载状态 -->
+                <div v-if="loading" class="text-center my-3">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">正在获取直播列表...</p>
+                </div>
+
+                <!-- 错误状态 -->
+                <div v-if="error" class="alert alert-warning mt-3 text-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                    <button class="btn btn-sm btn-primary ms-2" @click="fetchLiveList">
+                        <i class="bi bi-arrow-clockwise me-1"></i>重试
+                    </button>
                 </div>
             </div>
-
-            <!-- 加载状态 -->
-            <div v-if="loading" class="text-center my-3">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2">正在获取直播列表...</p>
+            <!-- 直播间 / 播放器区域：增加PC端最小高度 -->
+            <div v-if="activeTab === 'live' && isLivePage && currentLive" class="live-player-container mt-4">
+                <div ref="playerRef" class="dplayer-container"></div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-sm btn-outline-primary" @click="closeLivePage">
+                        <i class="bi bi-arrow-left me-1"></i>返回直播列表
+                    </button>
+                </div>
             </div>
-
-            <!-- 错误状态 -->
-            <div v-if="error" class="alert alert-warning mt-3 text-center">
-                <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
-                <button class="btn btn-sm btn-primary ms-2" @click="fetchLiveList">
-                    <i class="bi bi-arrow-clockwise me-1"></i>重试
-                </button>
+            <!-- 视频列表（占位）：只在video tab显示 -->
+            <div v-if="activeTab === 'video'" class="container-fluid">
+                <div class="video-list-section mt-4">
+                    <h3><i class="bi bi-film me-2"></i>视频回放</h3>
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-film display-4 mb-3"></i>
+                        <p>视频回放功能正在开发中...</p>
+                    </div>
+                </div>
             </div>
         </main>
 
-        <!-- 直播间 / 播放器区域 -->
-        <div v-if="activeTab === 'live' && isLivePage && currentLive" class="live-player-container mt-4">
-            <div ref="playerRef" class="dplayer-container"></div>
-            <div class="text-center mt-3">
-                <button class="btn btn-sm btn-outline-primary" @click="closeLivePage">
-                    <i class="bi bi-arrow-left me-1"></i>返回直播列表
-                </button>
-            </div>
-        </div>
 
-        <!-- 页脚 -->
-        <Footer />
+
 
     </div>
+    <!-- 页脚 -->
+    <Footer />
 </template>
 
 <script setup lang="ts">
@@ -198,7 +201,7 @@ const currentLive = ref<LiveStream | null>(null)
 const isLivePage = ref(false) // 控制直播间显示
 const loading = ref(true)
 const error = ref('')
-const activeTab = ref('home') // 当前活动标签: 'home', 'live', 'video'
+const activeTab = ref('nav') // 当前活动标签: 'home', 'nav', 'live', 'video'
 
 const playerRef = ref<HTMLElement | null>(null)
 let player: any = null
@@ -300,7 +303,7 @@ const formatLastLogin = (lastLogin?: string) => lastLogin ? new Date(lastLogin).
 
 // 处理hash变化事件
 const handleHashChange = () => {
-    const hash = window.location.hash.slice(1) || 'home'
+    const hash = window.location.hash.slice(1) || 'nav'
     tagChange(hash)
 }
 
@@ -360,9 +363,22 @@ main {
     background-color: #1a1a1a;
 }
 
+/* 增加播放器在PC端的最小高度 */
 .live-player-container {
     max-width: 100%;
     height: 480px;
     margin: 0 auto;
+}
+
+/* 响应式设计：PC端最小高度600px */
+@media (min-width: 768px) {
+    .live-player-container {
+        min-height: 600px;
+        height: auto;
+    }
+
+    .dplayer-container {
+        height: 100%;
+    }
 }
 </style>
