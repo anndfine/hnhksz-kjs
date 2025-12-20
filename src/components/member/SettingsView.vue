@@ -282,6 +282,7 @@ import { useAuth } from './useAuth.ts'
 import { showToast } from '@/utils/toast.ts'
 // 无需 import { Modal } from 'bootstrap'，直接用全局变量
 import { computeChallenge } from '@/utils/ComputeChallenge';
+import { apinodes } from '@/data/apinodes'
 // 导入认证相关功能
 const { logout } = useAuth()
 
@@ -294,6 +295,7 @@ interface User {
   department?: string
   lastLogin?: string
   permissions?: string[]
+  email?: string
 }
 
 const props = defineProps<{
@@ -601,7 +603,22 @@ const handleChangePassword = async () => {
       newPassword: passwordForm.value.newPassword,
       verifyCode: passwordForm.value.verifyCode
     })
+    const currentUD = props.user;
+    if(!currentUD) throw new Error("致命错误：找不到CUuser")
+    if(!(currentUD.email && currentUD.id)) throw new Error("找不到必要信息:Email/id")
+    const currentE=props.user.email;
+    const requestData={
+      E: currentUD.email,
+      
+    }
 
+    const request_response = await fetch(`${apinodes[0]!.domain}/api/auth/pwd_ch/`, {
+      method: "POST", credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    });
     // 模拟接口请求延迟
     await new Promise(resolve => setTimeout(resolve, 1500))
 
