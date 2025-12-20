@@ -115,12 +115,22 @@ const fetchLiveList = async () => {
         liveList.value = [
             {
                 id: '0',
-                title: '网络连通性测试',
+                title: '网络连通性测试1',
                 description: '管理员开放的测试流',
                 url: 'https://vid-sto-pat-eedap-region3.yt437700.top/ts/hls/stream_1/playlist.m3u8',
                 // thumbnail: '/images/live-thumb-1.jpg',
                 status: 'live',
                 viewers: 156,
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: '1',
+                title: '网络连通性测试2',
+                description: '管理员开放的测试流',
+                url: 'https://vid-sto-pat-eedap-region3.yt437700.top/flv/live/stream_1.flv',
+                // thumbnail: '/images/live-thumb-1.jpg',
+                status: 'live',
+                viewers: 132,
                 updatedAt: new Date().toISOString()
             }
         ]
@@ -164,7 +174,7 @@ const loadVideoDependencies = async () => {
     if (!window.DPlayer) {
         await new Promise<void>((resolve, reject) => {
             const script = document.createElement('script')
-            script.src = 'https://cdn.jsdelivr.net/npm/dplayer@1.27.1/dist/DPlayer.min.js'
+            script.src = 'https://static-cf4-cf6.yt437700.top/resources/DPlayer/DPlayer.min.js'
             script.onload = () => resolve()
             script.onerror = () => reject(new Error('DPlayer加载失败'))
             document.head.appendChild(script)
@@ -175,7 +185,7 @@ const loadVideoDependencies = async () => {
     if (!window.Hls) {
         await new Promise<void>((resolve, reject) => {
             const script = document.createElement('script')
-            script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.3.5/dist/hls.min.js'
+            script.src = 'https://static-cf4-cf6.yt437700.top/resources/hls.min.js'
             script.onload = () => resolve()
             script.onerror = () => reject(new Error('Hls.js加载失败'))
             document.head.appendChild(script)
@@ -186,7 +196,7 @@ const loadVideoDependencies = async () => {
     if (!window.flvjs) {
         await new Promise<void>((resolve, reject) => {
             const script = document.createElement('script')
-            script.src = 'https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js'
+            script.src = 'https://static-cf4-cf6.yt437700.top/resources/flv.min.js'
             script.onload = () => resolve()
             script.onerror = () => reject(new Error('flv.js加载失败'))
             document.head.appendChild(script)
