@@ -1,112 +1,189 @@
 <template>
-    <div class="live-view">
-        <Navbar />
-        <div class="live-container">
-            <!-- 页面标题 -->
-            <div class="live-header">
-                <h1><i class="bi bi-broadcast me-2"></i>科技社直播</h1>
-                <p class="live-subtitle">实时观看科技社活动直播</p>
+    <div class="home">
+        <!-- 顶部导航栏 -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" @click.prevent="router.push('/')">
+                    <i class="bi bi-cpu-fill me-2"></i>海口四中展翼科技社
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="homeNavbar">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" @click.prevent="tagChange('nav')">导航页</a></li>
+                        <li class="nav-item"><a class="nav-link" @click.prevent="tagChange('live')">直播</a></li>
+                        <li class="nav-item"><a class="nav-link" @click.prevent="tagChange('video')">视频</a></li>
+                        <!-- <li class="nav-item"><a class="nav-link" @click.prevent="router.push('/member')">成员系统</a></li> -->
+                        <li class="nav-item"><a class="nav-link" @click.prevent="router.push('/help')">使用指南</a></li>
+                    </ul>
+                </div>
             </div>
+        </nav>
 
-            <!-- 主要内容区域 -->
-            <div class="live-content">
-                <!-- 直播播放器区域 -->
-                <div class="player-section" v-if="currentLive">
-                    <div class="player-wrapper">
-                        <div ref="playerRef" class="dplayer-container"></div>
-                    </div>
-                    <div class="live-info">
-                        <h3 class="live-title">{{ currentLive.title }}</h3>
-                        <div class="live-meta">
-                            <span class="live-status" :class="currentLive.status">
-                                <i class="bi" :class="getStatusIcon(currentLive.status)"></i>
-                                {{ getStatusText(currentLive.status) }}
-                            </span>
-                            <span class="live-viewers">
-                                <i class="bi bi-eye"></i>
-                                {{ currentLive.viewers || 0 }} 人观看
-                            </span>
-                            <span class="live-updated">
-                                最后更新: {{ formatTime(currentLive.updatedAt) }}
-                            </span>
+        <main class="container-fluid py-4">
+            <!-- 导航模块：只在nav tab显示 -->
+            <div class="row g-4" v-if="activeTab === 'nav'">
+                <!-- 左侧功能卡片 -->
+                <div class="col-lg-8">
+                    <div class="row g-3">
+                        <!-- 功能卡片 -->
+                        <div class="col-md-6" @click="tagChange('live')">
+                            <div class="card h-100 border-0 shadow-sm hover-card bg-dark text-white">
+                                <div class="card-body text-center p-4">
+                                    <i class="bi bi-broadcast display-4 text-primary mb-3"></i>
+                                    <h6 class="card-title">查看直播</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" @click="tagChange('video')">
+                            <div class="card h-100 border-0 shadow-sm hover-card bg-dark text-white">
+                                <div class="card-body text-center p-4">
+                                    <i class="bi bi-play-btn display-4 text-success mb-3"></i>
+                                    <h6 class="card-title">视频回放</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" @click="router.push('/member')">
+                            <div class="card h-100 border-0 shadow-sm hover-card bg-dark text-white">
+                                <div class="card-body text-center p-4">
+                                    <i class="bi bi-people display-4 text-info mb-3"></i>
+                                    <h6 class="card-title">成员系统</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" @click="router.push('/help')">
+                            <div class="card h-100 border-0 shadow-sm hover-card bg-dark text-white">
+                                <div class="card-body text-center p-4">
+                                    <i class="bi bi-book display-4 text-warning mb-3"></i>
+                                    <h6 class="card-title">使用指南</h6>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- 直播列表 -->
-                <div class="live-list-section">
+                <!-- 右侧用户信息栏 -->
+                <div class="col-lg-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-person-circle me-2"></i>用户信息
+                            </h5>
+                        </div>
+                        <div class="card-body text-center p-0">
+                            <div v-if="!isAuthenticated" class="py-4 px-3">
+                                <i class="bi bi-person-x display-4 text-muted mb-3"></i>
+                                <h6 class="text-muted">未登录</h6>
+                                <p class="small text-muted mb-3">请登录以查看个人信息</p>
+                                <a href="/member" class="btn btn-primary">登录</a>
+                            </div>
+                            <div v-else class="p-3">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0">
+                                        <img v-if="user?.avatar" :src="user.avatar" class="avatar rounded-circle border"
+                                            alt="用户头像" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <div v-else
+                                            class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center bg-primary text-white"
+                                            style="width: 60px; height: 60px;">
+                                            <i class="bi bi-person-fill fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3 text-start">
+                                        <h6 class="mb-1 fw-bold">{{ user?.name || '用户' }}</h6>
+                                        <span class="badge bg-secondary">{{ user?.role || '成员' }}</span>
+                                        <div class="small text-muted mt-1">
+                                            <i class="bi bi-clock me-1"></i>{{ formatLastLogin(user?.lastLogin) }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 直播列表：只在live tab且不在直播页面时显示 -->
+            <div v-if="activeTab === 'live' && !isLivePage" class="container-fluid">
+                <div class="live-list-section mt-4" v-if="!loading && !error && liveList.length > 0">
                     <h3><i class="bi bi-list-ul me-2"></i>直播列表</h3>
-                    <div class="live-list">
-                        <div v-for="live in liveList" :key="live.id" class="live-item"
-                            :class="{ active: currentLive?.id === live.id }" @click="selectLive(live)">
-                            <div class="live-thumbnail">
-                                <img :src="live.thumbnail" :alt="live.title" />
-                                <div class="live-status-badge" :class="live.status">
-                                    {{ getStatusText(live.status) }}
+                    <div class="live-list row g-3">
+                        <div v-for="live in liveList" :key="live.id" class="col-md-6 col-lg-4"
+                            @click="showLivePage(live)" style="cursor: pointer;">
+                            <div class="card h-100 border-0 shadow-sm hover-card bg-dark text-white"
+                                :class="{ 'border-primary': currentLive?.id === live.id }">
+                                <img :src="live.thumbnail" class="card-img-top" :alt="live.title">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ live.title }}</h5>
+                                    <p class="card-text">{{ live.description }}</p>
+                                    <div class="d-flex justify-content-between small text-muted">
+                                        <span><i class="bi bi-eye"></i> {{ live.viewers || 0 }}</span>
+                                        <span>{{ formatTime(live.updatedAt) }}</span>
+                                    </div>
+                                    <span class="badge mt-2" :class="{
+                                        'bg-success': live.status === 'live',
+                                        'bg-warning': live.status === 'upcoming',
+                                        'bg-secondary': live.status === 'offline'
+                                    }">
+                                        {{ getStatusText(live.status) }}
+                                    </span>
                                 </div>
                             </div>
-                            <div class="live-details">
-                                <h4 class="live-item-title">{{ live.title }}</h4>
-                                <p class="live-item-desc">{{ live.description }}</p>
-                                <div class="live-item-meta">
-                                    <span class="live-item-viewers">
-                                        <i class="bi bi-eye"></i>
-                                        {{ live.viewers || 0 }}
-                                    </span>
-                                    <span class="live-item-updated">
-                                        {{ formatTime(live.updatedAt) }}
-                                    </span>
-                                </div>
-                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- 加载状态 -->
-                    <div v-if="loading" class="loading-section">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">加载中...</span>
-                        </div>
-                        <p>正在获取直播列表...</p>
-                    </div>
+                <!-- 加载状态 -->
+                <div v-if="loading" class="text-center my-3">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2">正在获取直播列表...</p>
+                </div>
 
-                    <!-- 错误状态 -->
-                    <div v-if="error" class="error-section">
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            {{ error }}
-                        </div>
-                        <button class="btn btn-primary" @click="fetchLiveList">
-                            <i class="bi bi-arrow-clockwise me-2"></i>
-                            重新加载
-                        </button>
-                    </div>
-
-                    <!-- 空状态 -->
-                    <div v-if="!loading && !error && liveList.length === 0" class="empty-section">
-                        <i class="bi bi-broadcast empty-icon"></i>
-                        <p>暂无直播内容</p>
+                <!-- 错误状态 -->
+                <div v-if="error" class="alert alert-warning mt-3 text-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                    <button class="btn btn-sm btn-primary ms-2" @click="fetchLiveList">
+                        <i class="bi bi-arrow-clockwise me-1"></i>重试
+                    </button>
+                </div>
+            </div>
+            <!-- 直播间 / 播放器区域：增加PC端最小高度 -->
+            <div v-if="activeTab === 'live' && isLivePage && currentLive" class="live-player-container mt-4">
+                <div ref="playerRef" class="dplayer-container"></div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-sm btn-outline-primary" @click="closeLivePage">
+                        <i class="bi bi-arrow-left me-1"></i>返回直播列表
+                    </button>
+                </div>
+            </div>
+            <!-- 视频列表（占位）：只在video tab显示 -->
+            <div v-if="activeTab === 'video'" class="container-fluid">
+                <div class="video-list-section mt-4">
+                    <h3><i class="bi bi-film me-2"></i>视频回放</h3>
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-film display-4 mb-3"></i>
+                        <p>视频回放功能正在开发中...</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <Footer />
+        </main>
+
+
+
+
     </div>
+    <!-- 页脚 -->
+    <Footer />
 </template>
 
-
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import Navbar from "@/components/Layout/Navbar.vue"
+import { ref, onMounted, nextTick, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '@/components/member/useAuth.ts'
 import Footer from '@/components/Layout/Footer.vue'
 
-// 声明全局类型
-declare global {
-    interface Window {
-        DPlayer: any
-        Hls: any
-        flvjs: any
-    }
-}
+const router = useRouter()
+const { isAuthenticated, user, checkAuth } = useAuth()
 
 interface LiveStream {
     id: string
@@ -119,88 +196,66 @@ interface LiveStream {
     updatedAt: string
 }
 
-// 响应式数据
-const loading = ref(true)
-const error = ref('')
 const liveList = ref<LiveStream[]>([])
 const currentLive = ref<LiveStream | null>(null)
+const isLivePage = ref(false) // 控制直播间显示
+const loading = ref(true)
+const error = ref('')
+const activeTab = ref('nav') // 当前活动标签: 'home', 'nav', 'live', 'video'
+
 const playerRef = ref<HTMLElement | null>(null)
 let player: any = null
 
-// 按顺序加载依赖
-const loadDependencies = async (): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            // 加载HLS.js
-            if (!window.Hls) {
-                await new Promise<void>((resolveHls, rejectHls) => {
-                    const hlsScript = document.createElement('script')
-                    hlsScript.src = 'https://cdn.jsdelivr.net/npm/hls.js@latest'
-                    hlsScript.onload = () => {
-                        console.log('HLS.js loaded successfully')
-                        resolveHls()
-                    }
-                    hlsScript.onerror = () => rejectHls(new Error('Failed to load HLS.js'))
-                    document.head.appendChild(hlsScript)
-                })
-            }
-
-            // 加载FLV.js
-            if (!window.flvjs) {
-                await new Promise<void>((resolveFlv, rejectFlv) => {
-                    const flvScript = document.createElement('script')
-                    flvScript.src = 'https://cdn.jsdelivr.net/npm/flv.js@latest'
-                    flvScript.onload = () => {
-                        console.log('FLV.js loaded successfully')
-                        resolveFlv()
-                    }
-                    flvScript.onerror = () => rejectFlv(new Error('Failed to load FLV.js'))
-                    document.head.appendChild(flvScript)
-                })
-            }
-
-            // 加载DPlayer CSS
-            if (!document.querySelector('link[href*="DPlayer.min.css"]')) {
-                const cssLink = document.createElement('link')
-                cssLink.rel = 'stylesheet'
-                cssLink.href = 'https://cdn.jsdelivr.net/npm/dplayer@1.27.1/dist/DPlayer.min.css'
-                document.head.appendChild(cssLink)
-            }
-
-            // 加载DPlayer
-            if (!window.DPlayer) {
-                await new Promise<void>((resolveDPlayer, rejectDPlayer) => {
-                    const script = document.createElement('script')
-                    script.src = 'https://cdn.jsdelivr.net/npm/dplayer@1.27.1/dist/DPlayer.min.js'
-                    script.onload = () => {
-                        console.log('DPlayer loaded successfully')
-                        resolveDPlayer()
-                    }
-                    script.onerror = () => rejectDPlayer(new Error('Failed to load DPlayer'))
-                    document.head.appendChild(script)
-                })
-            }
-
-            resolve()
-        } catch (err) {
-            reject(err)
-        }
-    })
+// 标签切换方法
+const tagChange = (tab: string) => {
+    activeTab.value = tab
+    window.location.hash = tab
+    // 如果切换到直播标签，显示直播列表
+    if (tab === 'live') {
+        isLivePage.value = false
+    }
 }
 
-// 获取直播列表
+// 显示直播间并选中直播
+const showLivePage = (liveOrEvent?: LiveStream | null | Event) => {
+    let live: LiveStream | null = null
+
+    if (liveOrEvent instanceof Event) {
+        live = liveList.value[0] || null
+    } else if (liveOrEvent) {
+        live = liveOrEvent
+    } else {
+        live = liveList.value[0] || null
+    }
+
+    if (!live) return // 没有直播直接返回
+
+    currentLive.value = live
+    isLivePage.value = true
+    activeTab.value = 'live'
+    window.location.hash = 'live'
+    nextTick(() => initializePlayer())
+}
+
+// 关闭直播间返回列表
+const closeLivePage = () => {
+    isLivePage.value = false
+    if (player?.destroy) {
+        player.destroy()
+        player = null
+    }
+}
+
+// 选择列表直播
+const selectLive = (live: LiveStream) => showLivePage(live)
+
+// 获取直播列表（模拟）
 const fetchLiveList = async () => {
     try {
         loading.value = true
         error.value = ''
-
-        // TODO: 替换为实际的API接口
-        // const response = await fetch('/api/live/streams')
-        // const data = await response.json()
-
-        // 模拟API数据
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        const mockData: LiveStream[] = [
+        await new Promise(resolve => setTimeout(resolve, 500))
+        liveList.value = [
             {
                 id: '0',
                 title: '网络连通性测试',
@@ -210,263 +265,31 @@ const fetchLiveList = async () => {
                 status: 'live',
                 viewers: 156,
                 updatedAt: new Date().toISOString()
-            },
-            // {
-            //     id: '1',
-            //     title: '科技社日常活动直播',
-            //     description: '展示科技社成员的日常学习和项目开发活动',
-            //     url: 'https://example.com/live/stream1.m3u8',
-            //     thumbnail: '/images/live-thumb-1.jpg',
-            //     status: 'live',
-            //     viewers: 156,
-            //     updatedAt: new Date().toISOString()
-            // },
-            // {
-            //     id: '2',
-            //     title: '项目展示直播',
-            //     description: '各项目组展示最新开发成果',
-            //     url: 'https://example.com/live/stream2.m3u8',
-            //     thumbnail: '/images/live-thumb-2.jpg',
-            //     status: 'upcoming',
-            //     viewers: 0,
-            //     updatedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-            // },
-            // {
-            //     id: '3',
-            //     title: '技术分享会直播',
-            //     description: '技术大咖分享最新技术趋势',
-            //     url: 'https://example.com/live/stream3.m3u8',
-            //     thumbnail: '/images/live-thumb-3.jpg',
-            //     status: 'offline',
-            //     viewers: 89,
-            //     updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-            // }
+            }
         ]
-
-        liveList.value = mockData
-        if (mockData.length > 0 && !currentLive.value) {
-            currentLive.value = mockData[0]!
-        }
     } catch (err) {
-        error.value = '获取直播列表失败，请稍后重试'
-        console.error('获取直播列表失败:', err)
+        error.value = '获取直播列表失败'
     } finally {
         loading.value = false
     }
 }
 
-// 选择直播
-const selectLive = (live: LiveStream) => {
-    currentLive.value = live
-}
-
-// 监听currentLive变化，初始化播放器
-watch(currentLive, (newLive, oldLive) => {
-    if (newLive?.id !== oldLive?.id) {
-        if (newLive?.status === 'live') {
-            // 延迟初始化，确保DOM更新完成
-            setTimeout(() => {
-                initializePlayer()
-            }, 100)
-        } else {
-            destroyPlayer()
-        }
-    }
-})
-
-// 检查HLS支持
-const checkHlsSupport = () => {
-    if (window.Hls) {
-        return window.Hls.isSupported()
-    }
-    return false
-}
-
-// 初始化播放器
+// DPlayer初始化示例
 const initializePlayer = async () => {
-    if (!currentLive.value || currentLive.value.status !== 'live') {
-        console.warn('当前直播不可播放或未选择直播')
-        return
-    }
-
-    try {
-        // 确保依赖已加载
-        await loadDependencies()
-
-        // 等待DOM更新，确保容器元素存在
-        await nextTick()
-
-        // 确保ref指向的元素存在
-        if (!playerRef.value) {
-            console.error('播放器容器元素未找到')
-            // 创建容器如果不存在
-            const container = document.createElement('div')
-            container.className = 'dplayer-container'
-            document.querySelector('.player-wrapper')?.appendChild(container)
-            playerRef.value = container
-        }
-
-        // 清理可能存在的旧播放器
-        destroyPlayer()
-
-        console.log('开始初始化播放器...')
-
-        // 检查HLS支持并确定视频类型
-        let videoType = 'auto'
-        const videoUrl = currentLive.value.url
-
-        // 根据URL后缀判断类型
-        if (videoUrl.includes('.m3u8')) {
-            if (checkHlsSupport()) {
-                videoType = 'hls'
-                console.log('使用HLS模式播放')
-            } else {
-                console.warn('HLS不支持，尝试其他格式')
-            }
-        }
-
-        // 创建播放器配置
-        const playerConfig: any = {
-            container: playerRef.value,
-            live: true,
-            autoplay: true,
-            theme: '#007bff',
-            video: {
-                url: videoUrl,
-                type: "hls"
-            }
-        }
-
-        // 检查浏览器是否原生支持HLS
-        // const videoElement = document.createElement('video')
-        // if (videoUrl.includes('.m3u8') &&
-        //     (videoElement.canPlayType('application/x-mpegURL') ||
-        //         videoElement.canPlayType('application/vnd.apple.mpegURL'))) {
-        //     console.log('浏览器原生支持HLS，使用normal模式')
-        //     playerConfig.video.type = 'normal'
-        // }
-
-        console.log('播放器配置:', playerConfig)
-
-        // 创建播放器实例
-        player = new window.DPlayer(playerConfig)
-
-        // 添加事件监听
-        player.on('error', (e: any) => {
-            console.error('播放器错误详情:', e)
-
-            // 尝试其他格式
-            // if (playerConfig.video.type === 'hls' || playerConfig.video.type === 'auto') {
-            //     console.log('尝试使用normal模式...')
-            //     // playerConfig.video.type = 'normal'
-            //     destroyPlayer()
-            //     setTimeout(() => {
-            //         player = new window.DPlayer(playerConfig)
-            //     }, 500)
-            // }
-        })
-
-        player.on('loadedmetadata', () => {
-            console.log('视频元数据加载完成')
-        })
-
-        player.on('canplay', () => {
-            console.log('视频可以播放了')
-        })
-
-        player.on('play', () => {
-            console.log('开始播放')
-        })
-
-        player.on('pause', () => {
-            console.log('暂停播放')
-        })
-
-        console.log('播放器初始化完成')
-
-    } catch (err) {
-        console.error('初始化播放器失败:', err)
-
-        // 显示用户友好的错误信息
-        error.value = '播放器初始化失败，请刷新页面重试'
-
-        // 尝试使用备用方法
-        setTimeout(() => {
-            if (currentLive.value?.status === 'live') {
-                console.log('尝试备用方法初始化播放器...')
-                initializePlayerFallback()
-            }
-        }, 2000)
-    }
+    if (!currentLive.value || !playerRef.value) return
+    if (player?.destroy) player.destroy()
+    const DPlayer = (window as any).DPlayer
+    if (!DPlayer) return console.warn('DPlayer未加载')
+    player = new DPlayer({
+        container: playerRef.value,
+        live: true,
+        autoplay: true,
+        theme: '#007bff',
+        video: { url: currentLive.value.url, type: 'hls' }
+    })
 }
 
-// 备用播放器初始化方法
-const initializePlayerFallback = () => {
-    if (!playerRef.value || !currentLive.value) return
-
-    try {
-        // 清理可能存在的旧播放器
-        destroyPlayer()
-
-        // 直接创建video元素
-        const videoElement = document.createElement('video')
-        videoElement.style.width = '100%'
-        videoElement.style.height = '100%'
-        videoElement.style.objectFit = 'contain'
-        videoElement.controls = true
-        videoElement.autoplay = true
-
-        // 设置视频源
-        const sourceElement = document.createElement('source')
-        sourceElement.src = currentLive.value.url
-        sourceElement.type = 'application/x-mpegURL'
-
-        videoElement.appendChild(sourceElement)
-        playerRef.value.appendChild(videoElement)
-
-        // 存储video元素引用以便销毁
-        player = videoElement
-
-        console.log('使用备用video元素播放')
-    } catch (err) {
-        console.error('备用播放器初始化失败:', err)
-    }
-}
-
-// 销毁播放器
-const destroyPlayer = () => {
-    if (player) {
-        try {
-            // 检查是否是DPlayer实例
-            if (player.destroy && typeof player.destroy === 'function') {
-                player.destroy()
-                console.log('DPlayer实例已销毁')
-            } else if (player.parentNode) {
-                // 如果是video元素，直接移除
-                player.parentNode.removeChild(player)
-                console.log('Video元素已移除')
-            }
-        } catch (err) {
-            console.error('销毁播放器时出错:', err)
-        }
-        player = null
-    }
-
-    // 清理容器
-    if (playerRef.value) {
-        playerRef.value.innerHTML = ''
-    }
-}
-
-// 状态相关方法
-const getStatusIcon = (status: string) => {
-    switch (status) {
-        case 'live': return 'bi-broadcast'
-        case 'upcoming': return 'bi-clock'
-        default: return 'bi-broadcast'
-    }
-}
-
+// 辅助函数
 const getStatusText = (status: string) => {
     switch (status) {
         case 'live': return '直播中'
@@ -474,263 +297,88 @@ const getStatusText = (status: string) => {
         default: return '已结束'
     }
 }
+const formatTime = (time: string) =>
+    new Date(time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+const formatLastLogin = (lastLogin?: string) => lastLogin ? new Date(lastLogin).toLocaleString('zh-CN') : '首次登录'
 
-const formatTime = (time: string) => {
-    return new Date(time).toLocaleTimeString('zh-CN', {
-        hour: '2-digit',
-        minute: '2-digit'
-    })
+// 处理hash变化事件
+const handleHashChange = () => {
+    const hash = window.location.hash.slice(1) || 'nav'
+    tagChange(hash)
 }
 
-// 生命周期
-onMounted(() => {
-    // 预加载依赖
-    loadDependencies().catch(err => {
-        console.warn('预加载依赖失败:', err)
-    })
-
-    // 获取直播列表
+onMounted(async () => {
+    await checkAuth()
     fetchLiveList()
+
+    // 初始化时检查hash
+    handleHashChange()
+
+    // 添加hash变化事件监听器
+    window.addEventListener('hashchange', handleHashChange)
 })
 
-onUnmounted(() => {
-    destroyPlayer()
+// 组件卸载时移除事件监听器
+onMounted(() => {
+    return () => {
+        window.removeEventListener('hashchange', handleHashChange)
+    }
 })
 </script>
+
 <style scoped>
-.live-view {
+.home {
+    background-color: #1a1a1a;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
-.live-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+.hover-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.live-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.live-header h1 {
-    color: #2c3e50;
-    font-size: 2.5rem;
-    font-weight: 700;
-}
-
-.live-subtitle {
-    color: #7f8c8d;
-    font-size: 1.1rem;
-}
-
-.live-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 2rem;
-}
-
-.player-section {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.player-wrapper {
-    position: relative;
-    padding-bottom: 56.25%;
-    /* 16:9 aspect ratio */
-    height: 0;
-}
-
-.player-wrapper :deep(#dplayer) {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-
-.dplayer-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-}
-
-.live-info {
-    padding: 1rem;
-}
-
-.live-title {
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-}
-
-.live-meta {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    font-size: 0.9rem;
-    color: #7f8c8d;
-}
-
-.live-status.live {
-    color: #e74c3c;
-    font-weight: 600;
-}
-
-.live-status.upcoming {
-    color: #f39c12;
-}
-
-.live-list-section {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-}
-
-.live-list-section h3 {
-    color: #2c3e50;
-    margin-bottom: 1rem;
-}
-
-.live-list {
-    max-height: 600px;
-    overflow-y: auto;
-}
-
-.live-item {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.live-item:hover {
-    border-color: #007bff;
+.hover-card:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1) !important;
 }
 
-.live-item.active {
-    border-color: #007bff;
-    background-color: #f8f9fa;
-}
-
-.live-thumbnail {
-    position: relative;
-    flex-shrink: 0;
-    width: 120px;
-    height: 80px;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.live-thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.live-status-badge {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.7rem;
+.navbar-brand {
     font-weight: 600;
-    color: white;
+    cursor: pointer;
 }
 
-.live-status-badge.live {
-    background-color: #e74c3c;
+.card {
+    border-radius: 12px;
+    border: 1px solid #333;
 }
 
-.live-status-badge.upcoming {
-    background-color: #f39c12;
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
 }
 
-.live-status-badge.offline {
-    background-color: #95a5a6;
+.btn {
+    border-radius: 6px;
 }
 
-.live-details {
-    flex: 1;
+main {
+    background-color: #1a1a1a;
 }
 
-.live-item-title {
-    color: #2c3e50;
-    font-size: 1rem;
-    margin-bottom: 0.25rem;
+/* 增加播放器在PC端的最小高度 */
+.live-player-container {
+    max-width: 100%;
+    height: 480px;
+    margin: 0 auto;
 }
 
-.live-item-desc {
-    color: #7f8c8d;
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.live-item-meta {
-    display: flex;
-    gap: 1rem;
-    font-size: 0.8rem;
-    color: #bdc3c7;
-}
-
-.loading-section,
-.empty-section {
-    text-align: center;
-    padding: 3rem;
-    color: #7f8c8d;
-}
-
-.empty-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-.error-section {
-    text-align: center;
-    padding: 2rem;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .live-content {
-        grid-template-columns: 1fr;
+/* 响应式设计：PC端最小高度600px */
+@media (min-width: 768px) {
+    .live-player-container {
+        min-height: 600px;
+        height: auto;
     }
 
-    .live-container {
-        padding: 1rem;
-    }
-
-    .live-header h1 {
-        font-size: 2rem;
-    }
-
-    .live-item {
-        flex-direction: column;
-    }
-
-    .live-thumbnail {
-        width: 100%;
-        height: 200px;
+    .dplayer-container {
+        height: 100%;
     }
 }
 </style>

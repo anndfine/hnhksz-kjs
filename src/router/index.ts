@@ -37,9 +37,9 @@ const router = createRouter({
       }
     },
     {
-      path: '/live',
+      path: '/live/',
       name: 'live',
-      component: () => import('@/views/LiveView.vue'),
+      component: () => import('@/views/live/LiveLayout.vue'),
       meta: {
         title: '科技社直播 - 海口四中展翼科技社'
       }

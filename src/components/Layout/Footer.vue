@@ -5,12 +5,14 @@
       <div class="row g-4">
         <div class="col-lg-4">
           <div class="footer-about">
-            <h5 class="fw-bold mb-3">
-              <i class="bi bi-cpu-fill me-2"></i>
-              海口市第四中学展翼科技社
-            </h5>
-            <p class="text-muted">
-              探索科技，创造未来。我们致力于培养学生的科技创新能力和实践能力。
+            <a class="text-decoration-none text-light" href="/">
+              <h5 class="fw-bold mb-3">
+                <i class="bi bi-cpu-fill me-2"></i>
+                海口市第四中学展翼科技社
+              </h5>
+            </a>
+            <p class="text-light" style="opacity: 0.3;">
+              探索科技，创造未来。<br>培养同学们的科技创新能力和实践能力。
             </p>
             <div class="mt-3">
               <span class="fw-semibold">联系我们:</span>
@@ -24,6 +26,7 @@
             <h6 class="fw-bold mb-3">快速链接</h6>
             <div class="d-flex flex-column gap-2">
               <a href="https://yt437700.top" class="text-decoration-none text-light">yt437700</a>
+              <a href="/live" class="text-decoration-none text-light">对外直播</a>
               <a href="/member/" class="text-decoration-none text-light">成员登录入口</a>
             </div>
           </div>
