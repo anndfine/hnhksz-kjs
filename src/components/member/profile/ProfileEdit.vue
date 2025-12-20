@@ -10,7 +10,7 @@
                     </button>
                     <div>
                         <h4 class="text-primary mb-1">编辑个人资料</h4>
-                        <p class="text-muted mb-0">完善个人信息，让其他成员更好地了解</p>
+                        <p class="text-muted mb-0">完善个人信息，让其他成员更好地了解你</p>
                     </div>
                 </div>
             </div>

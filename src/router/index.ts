@@ -25,6 +25,24 @@ const router = createRouter({
       meta: {
         title: '指南 - 海口四中展翼科技社'
       }
+    },
+
+    // 新增公共大屏路由
+    {
+      path: '/PublicAttendanceDashboardView',
+      name: 'PublicAttendanceDashboard',
+      component: () => import('@/views/PublicAttendanceDashboard.vue'),
+      meta: {
+        title: '打卡数据大屏 - 海口四中展翼科技社'
+      }
+    },
+    {
+      path: '/live',
+      name: 'live',
+      component: () => import('@/views/LiveView.vue'),
+      meta: {
+        title: '科技社直播 - 海口四中展翼科技社'
+      }
     }
   ],
 })
