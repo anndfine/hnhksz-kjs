@@ -11,6 +11,7 @@ interface User {
     studentId: string
     lastLogin: string
     permissions: string[]
+    isAdmin?: boolean
 }
 
 interface AuthState {
@@ -38,7 +39,12 @@ export function useAuth() {
 
             if (result.success && result.data) {
                 authState.value.isAuthenticated = true
-                authState.value.user = result.data
+                // authState.value.user = result.data
+                const { canAdmin, ...rest } = result.data;
+                authState.value.user = {
+                    ...rest,
+                    isAdmin: canAdmin || false
+                };
                 return true
             } else {
                 authState.value.isAuthenticated = false

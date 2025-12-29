@@ -2,7 +2,6 @@
 <template>
     <aside class="member-sidebar" :class="{ 'collapsed': isCollapsed }">
         <!-- 侧边栏头部 -->
-
         <div class="sidebar-header d-lg-flex d-none">
             <div class="brand" v-if="!isCollapsed">
                 <i class="bi bi-person-circle me-2"></i>
@@ -27,15 +26,16 @@
                     </div>
                     <div class="user-details">
                         <div class="user-name">{{ user?.name || '加载中...' }}</div>
-                        <div class="user-role">{{ user?.role || '社团成员' }}</div>
+                        <div class="user-role">{{ user?.isAdmin ? '管理员' : (user?.role || '社团成员') }}</div>
                     </div>
                 </div>
             </a>
         </li>
+
         <!-- 导航菜单 -->
         <nav class="sidebar-nav">
             <ul class="nav-list">
-
+                <!-- 基础菜单项 -->
                 <li v-for="tab in tabs" :key="tab.id" class="nav-item">
                     <a href="#" class="nav-link" :class="{ 'active': activeTab === tab.id }"
                         @click.prevent="$emit('tabChange', tab.id)">
@@ -44,9 +44,24 @@
                         <span class="tooltip" v-if="isCollapsed">{{ tab.name }}</span>
                     </a>
                 </li>
+
+                <!-- 管理员工具栏分隔线 -->
+                <li v-if="user?.isAdmin" class="nav-item admin-divider">
+                    <div class="divider-text" v-if="!isCollapsed">管理员工具</div>
+                    <div class="divider-line"></div>
+                </li>
+
+                <!-- 管理员专属菜单项 -->
+                <li v-if="user?.isAdmin" v-for="adminTab in adminTabs" :key="adminTab.id" class="nav-item">
+                    <a href="#" class="nav-link admin-link" :class="{ 'active': activeTab === adminTab.id }"
+                        @click.prevent="$emit('tabChange', adminTab.id)">
+                        <i :class="[adminTab.icon, 'nav-icon']"></i>
+                        <span class="nav-text" v-if="!isCollapsed">{{ adminTab.name }}</span>
+                        <span class="tooltip" v-if="isCollapsed">{{ adminTab.name }}</span>
+                    </a>
+                </li>
             </ul>
         </nav>
-
     </aside>
 </template>
 
@@ -61,6 +76,7 @@ interface user {
     name?: string
     avatar?: string
     role?: string
+    isAdmin?: boolean
 }
 defineProps<{
     activeTab: string
@@ -80,7 +96,17 @@ const tabs: Tab[] = [
     // { id: 'projects', name: '我的项目', icon: 'bi bi-kanban' },
     // { id: 'profile', name: '个人信息', icon: 'bi bi-person' },
     { id: 'help', name: '使用帮助', icon: 'bi bi-question-circle' },
-    { id: 'settings', name: '系统设置', icon: 'bi bi-gear' }
+    { id: 'settings', name: '系统设置', icon: 'bi bi-gear' },
+]
+
+const adminTabs: Tab[] = [
+    { id: 'add-member', name: '添加成员', icon: 'bi bi-person-plus' },
+    { id: 'member-management', name: '成员管理', icon: 'bi bi-people' },
+    { id: 'add-group', name: '添加小组', icon: 'bi bi-plus-circle' },
+    { id: 'group-management', name: '小组管理', icon: 'bi bi-diagram-3' },
+    { id: 'permission-management', name: '权限管理', icon: 'bi bi-shield-check' },
+    { id: 'group-permission', name: '小组权限', icon: 'bi bi-lock' },
+    { id: 'member-permission', name: '成员权限', icon: 'bi bi-key' },
 ]
 </script>
 
@@ -176,6 +202,41 @@ const tabs: Tab[] = [
     background: rgba(255, 255, 255, 0.15);
     color: white;
     border-right: 3px solid #00b4d8;
+}
+
+/* 管理员链接特殊样式 */
+.admin-link {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.admin-link.active {
+    background: rgba(255, 215, 0, 0.2);
+    border-right: 3px solid #ffd700;
+}
+
+/* 管理员分隔线 */
+.admin-divider {
+    margin: 16px 0 8px;
+    padding: 0 16px;
+}
+
+.divider-text {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.divider-line {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 8px 0;
 }
 
 .nav-icon {
