@@ -64,6 +64,7 @@ import AddDeviceModal from '@/components/member/modals/AddDeviceModal.vue'
 import ExportDataModal from '@/components/member/modals/ExportDataModal.vue'
 import DeleteAccountModal from '@/components/member/modals/DeleteAccountModal.vue'
 import ProfileEdit from '@/components/member/profile/ProfileEdit.vue'
+import MemberManagement from '@/components/member/MemberManagementView.vue'
 
 const { isAuthenticated, user, loading: authLoading, checkAuth, logout, startPolling } = useAuth()
 
@@ -106,7 +107,8 @@ const componentMap = {
     attendance: AttendanceView,
     help: HelpView,
     settings: SettingsView,
-    editprofile: EditProfileView
+    editprofile: EditProfileView,
+    'member-management': MemberManagement
 }
 
 const currentComponent = computed(() => {
