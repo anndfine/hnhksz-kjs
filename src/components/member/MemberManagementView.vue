@@ -156,14 +156,18 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar me-3 d-none d-xl-flex ">
-                                                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                                    <img v-if="member.avatar && member.avatar.trim()"
+                                                        :src="member.avatar" :alt="member.name" class="rounded-circle"
+                                                        style="width: 40px; height: 40px; object-fit: cover;">
+                                                    <div v-else
+                                                        class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
                                                         style="width: 40px; height: 40px;">
                                                         {{ member.name.charAt(0) }}
                                                     </div>
                                                 </div>
                                                 <div>
                                                     <h6 class="mb-0">{{ member.name }}</h6>
-                                                    <small class="text-muted">{{ member.studentId }}</small>
+                                                    <small class="text-muted">{{ member.id }}</small>
                                                 </div>
                                             </div>
                                         </td>
@@ -171,20 +175,21 @@
                                             <span class="badge bg-info-subtle text-info">{{ member.department }}</span>
                                         </td>
                                         <td>
-                                            <span class="badge" :class="getRoleBadgeClass(member.role)">
+                                            <span class="badge" :class="getRoleBadgeClass(member.role || '')">
                                                 {{ member.role }}
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="badge" :class="getStatusBadgeClass(member.status)">
-                                                <i :class="getStatusIcon(member.status) + ' me-1'"></i><span
+                                            <span class="badge" :class="getStatusBadgeClass(member.status || '')">
+                                                <i :class="getStatusIcon(member.status || '') + ' me-1'"></i><span
                                                     class="d-sm-none d-lg-inline">
                                                     {{ statusTextMap[member.status as keyof typeof statusTextMap] ||
                                                         member.status }}</span>
                                             </span>
                                         </td>
                                         <td class="d-none d-lg-table-cell">
-                                            <small class="text-muted">{{ formatDate(member.joinDate) }}</small>
+                                            <small class="text-muted">{{ formatDate(member.joinDate || '1000')
+                                            }}</small>
                                         </td>
                                         <td class="text-end pe-4">
                                             <div class="btn-group btn-group-sm">
@@ -338,7 +343,11 @@
                             <div v-for="member in recentActiveMembers" :key="member.id"
                                 class="active-member-item d-flex align-items-center py-2 border-bottom">
                                 <div class="avatar me-3">
-                                    <div class="d-none d-xl-flex bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                    <img v-if="member.avatar && member.avatar.trim()" :src="member.avatar"
+                                        :alt="member.name" class="rounded-circle d-none d-xl-flex"
+                                        style="width: 36px; height: 36px; object-fit: cover;">
+                                    <div v-else
+                                        class="d-none d-xl-flex bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center"
                                         style="width: 36px; height: 36px;">
                                         {{ member.name.charAt(0) }}
                                     </div>
@@ -376,7 +385,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">学号 *</label>
-                                    <input type="text" class="form-control" v-model="memberForm.studentId" required>
+                                    <input type="text" class="form-control" v-model="memberForm.studentNo" required>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">部门 *</label>
@@ -424,25 +433,33 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import toast, { showToast } from '@/utils/toast'
+import { showToast } from '@/utils/toast'
 import { apinodes } from '@/data/apinodes'
-// 成员接口
+
 interface Member {
-    id: number
+    id: number              // 后端唯一 ID
     name: string
-    studentId: string
-    department: string
-    role: string
-    status: string
-    email?: string
-    phone?: string
-    joinDate: string
-    lastActivity: string
-    notes?: string
-    attendanceRate: number
+    email: string | null
+    avatar: string | null
+    remark: string | null
+    created_at: string | null
+    updated_at: string | null
+    last_login?: string | null
+
+    // 前端显示字段
+    studentNo?: string      // 学号
+    department?: string
+    role?: string
+    status?: string
+    joinDate?: string       // 用 created_at 四舍五入
+    lastActivity?: string   // 用 last_login
+    attendanceRate?: number
 }
 
-// 统计数据
+const members = ref<Member[]>([])
+
+/* ================= 统计 ================= */
+
 const stats = ref({
     totalMembers: 0,
     activeMembers: 0,
@@ -451,273 +468,210 @@ const stats = ref({
 })
 
 const statusTextMap = {
-    'active': '活跃',
-    'inactive': '不活跃',
-    'graduated': '已毕业'
+    active: '活跃',
+    inactive: '不活跃',
+    graduated: '已毕业'
 }
 
-// 成员数据
-let members = ref<Member[]>([
-    {
-        id: 1,
-        name: '张三',
-        studentId: '20230001',
-        department: '技术部',
-        role: 'admin',
-        status: 'active',
-        email: 'zhangsan@example.com',
-        phone: '13800138000',
-        joinDate: '2023-09-01',
-        lastActivity: '刚刚',
-        attendanceRate: 95
-    },
-    {
-        id: 2,
-        name: '李四',
-        studentId: '20230002',
-        department: '宣传部',
-        role: 'member',
-        status: 'active',
-        joinDate: '2023-09-10',
-        lastActivity: '10分钟前',
-        attendanceRate: 88
-    },
-    {
-        id: 3,
-        name: '王五',
-        studentId: '20230003',
-        department: '策划部',
-        role: 'member',
-        status: 'inactive',
-        joinDate: '2023-09-15',
-        lastActivity: '2天前',
-        attendanceRate: 60
-    },
-    {
-        id: 4,
-        name: '赵六',
-        studentId: '20230004',
-        department: '技术部',
-        role: 'intern',
-        status: 'active',
-        joinDate: '2023-10-01',
-        lastActivity: '1小时前',
-        attendanceRate: 92
-    },
-    {
-        id: 5,
-        name: '钱七',
-        studentId: '20230005',
-        department: '外联部',
-        role: 'member',
-        status: 'graduated',
-        joinDate: '2022-09-01',
-        lastActivity: '1个月前',
-        attendanceRate: 78
-    },
-    {
-        id: 6,
-        name: '孙八',
-        studentId: '20230006',
-        department: '技术部',
-        role: 'member',
-        status: 'active',
-        joinDate: '2023-09-20',
-        lastActivity: '30分钟前',
-        attendanceRate: 90
-    },
-    {
-        id: 7,
-        name: '周九',
-        studentId: '20230007',
-        department: '宣传部',
-        role: 'member',
-        status: 'active',
-        joinDate: '2023-10-05',
-        lastActivity: '2小时前',
-        attendanceRate: 85
-    },
-    {
-        id: 8,
-        name: '吴十',
-        studentId: '20230008',
-        department: '策划部',
-        role: 'intern',
-        status: 'inactive',
-        joinDate: '2023-10-10',
-        lastActivity: '3天前',
-        attendanceRate: 55
-    }
-])
+/* ================= 筛选 / 分页 ================= */
 
-// 部门列表
 const departments = ref(['技术部', '宣传部', '策划部', '外联部', '组织部', '财务部'])
 
-// 搜索和筛选
 const searchQuery = ref('')
 const filterDepartment = ref('')
 const filterRole = ref('')
 const filterStatus = ref('')
 
-// 分页
 const currentPage = ref(1)
 const pageSize = 5
 
-// 选择状态
+/* ================= 选择 ================= */
+
 const selectedMembers = ref<number[]>([])
 const selectAll = ref(false)
 
-// 模态框状态
+/* ================= Modal ================= */
+
 const showAddModal = ref(false)
 const editingMember = ref<Member | null>(null)
 
-// 表单数据
 const memberForm = ref({
     name: '',
-    studentId: '',
+    studentNo: '',
     department: '',
-    role: '',
+    role: 'member',
     email: '',
     phone: '',
     notes: ''
 })
 
-// 快速操作
-const quickActions = ref([
-    { id: 'export', name: '导出数据', icon: 'bi bi-download' },
-    { id: 'import', name: '导入成员', icon: 'bi bi-upload' },
-    { id: 'assign', name: '分配任务', icon: 'bi bi-check-square' },
-    { id: 'send', name: '发送通知', icon: 'bi bi-send' }
-])
+/* ================= Fetch ================= */
 
-// 计算属性
+async function fetchAllMembers() {
+    const res = await fetch(`${apinodes[0]!.domain}/api/admin/member/listall/`, {
+        credentials: 'include',
+        method: 'POST'
+    });
+    if (!res.ok) throw new Error(`获取成员失败，状态码：${res.status}`);
+
+    const json = await res.json() as { data: Member[] }
+
+    // 映射前端视图字段
+    const value = json.data.map(m => ({
+        ...m,
+        department: m.department ?? '未分配',
+        role: m.role ?? 'member',
+        status: m.status ?? 'active',
+        joinDate: m.created_at ? m.created_at.slice(0, 10) : '',
+        lastActivity: m.last_login
+            ? new Date(m.last_login).toLocaleString()
+            : '从未登录',
+        attendanceRate: 100
+    }));
+    return value
+}
+
+/* ================= 计算 ================= */
+
 const filteredMembers = computed(() => {
-    return members.value.filter(member => {
-        // 搜索过滤
-        const searchMatch = !searchQuery.value ||
-            member.name.includes(searchQuery.value) ||
-            member.studentId.includes(searchQuery.value) ||
-            member.department.includes(searchQuery.value)
+    return members.value.filter(m => {
+        const q = searchQuery.value
+        const searchMatch =
+            !q ||
+            m.name.includes(q) ||
+            m.studentNo?.includes(q) ||
+            m.department?.includes(q)
 
-        // 部门过滤
-        const deptMatch = !filterDepartment.value || member.department === filterDepartment.value
-
-        // 角色过滤
-        const roleMatch = !filterRole.value || member.role === filterRole.value
-
-        // 状态过滤
-        const statusMatch = !filterStatus.value || member.status === filterStatus.value
-
-        return searchMatch && deptMatch && roleMatch && statusMatch
+        return (
+            searchMatch &&
+            (!filterDepartment.value || m.department === filterDepartment.value) &&
+            (!filterRole.value || m.role === filterRole.value) &&
+            (!filterStatus.value || m.status === filterStatus.value)
+        )
     })
 })
 
 const paginatedMembers = computed(() => {
     const start = (currentPage.value - 1) * pageSize
-    const end = start + pageSize
-    return filteredMembers.value.slice(start, end)
+    return filteredMembers.value.slice(start, start + pageSize)
 })
 
-const totalPages = computed(() => Math.ceil(filteredMembers.value.length / pageSize))
+const totalPages = computed(() =>
+    Math.ceil(filteredMembers.value.length / pageSize)
+)
 
-// 部门统计
-const departmentStats = computed(() => {
-    const deptCount: Record<string, number> = {}
-    members.value.forEach(member => {
-        deptCount[member.department] = (deptCount[member.department] || 0) + 1
-    })
 
-    const total = members.value.length
-    const colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796']
 
-    return Object.entries(deptCount)
-        .map(([name, count], index) => ({
-            name,
-            count,
-            percentage: ((count / total) * 100).toFixed(1),
-            color: colors[index % colors.length]
-        }))
-        .sort((a, b) => b.count - a.count)
-})
 
-// 最近活跃成员
-const recentActiveMembers = computed(() => {
-    return members.value
-        .filter(m => m.status === 'active')
-        .sort((a, b) => {
-            // 简单的排序逻辑，实际项目中可能需要更复杂的逻辑
-            const timeA = a.lastActivity.includes('刚刚') ? 0 :
-                a.lastActivity.includes('分钟') ? 1 :
-                    a.lastActivity.includes('小时') ? 2 : 3
-            const timeB = b.lastActivity.includes('刚刚') ? 0 :
-                b.lastActivity.includes('分钟') ? 1 :
-                    b.lastActivity.includes('小时') ? 2 : 3
-            return timeA - timeB
-        })
-        .slice(0, 5)
-})
+/* ================= Stats ================= */
 
-// 生命周期
-onMounted(() => {
-    calculateStats()
-    showToast('info', '成员管理页面已加载')
-})
+async function calculateStats() {
+    const res = await fetchAllMembers()
+    members.value = res.map(m => ({
+        ...m,
+        studentNo: String(m.id),
+        department: '未分配',
+        role: 'member',
+        status: 'active',
+        joinDate: m.created_at ? m.created_at.slice(0, 10) : '',
+        lastActivity: '刚刚',
+        attendanceRate: 100
+    }))
 
-// 方法
-
-// 假设 apinodes 和 showToast 已提前定义
-async function fetchAllMembers() {
-    try {
-        const fetchresult = await fetch(`${apinodes[0]!.domain}/api/admin/member/list/all`, {
-            credentials: 'include',
-            method: "POST"
-        });
-
-        // 1. 校验 HTTP 响应状态
-        if (!fetchresult.ok) {
-            throw new Error(`请求失败，状态码：${fetchresult.status}（${fetchresult.statusText}）`);
-        }
-
-        // 2. 解析响应体（根据接口返回格式选择 json() 或 text()，此处以 json 为例）
-        const memberData = await fetchresult.json();
-        return memberData; // 解析成功后返回数据，供后续业务使用
-
-    } catch (error) {
-        // 3. 安全处理 catch 块中的 error，明确类型判断
-        let errorMessage = "获取成员列表失败，请稍后重试"; // 默认兜底提示
-
-        // 优先判断是否为 Error 实例，提取精准错误信息
-        if (error instanceof Error) {
-            errorMessage = error.message; // 使用 Error 实例的 message 属性，更简洁友好
-        }
-        // 兼容其他可能的异常类型（字符串、数字等）
-        else if (typeof error === "string") {
-            errorMessage = error;
-        }
-
-        // 4. 调用提示函数，传递明确的错误信息
-        showToast("error", errorMessage);
-    }
-}
-
-const calculateStats = () => {
-    fetchAllMembers();
     const total = members.value.length
     const active = members.value.filter(m => m.status === 'active').length
     const thisMonth = new Date().getMonth()
-    const newCount = members.value.filter(m => {
-        const joinMonth = new Date(m.joinDate).getMonth()
-        return joinMonth === thisMonth
-    }).length
-    const avgAttendance = members.value.reduce((sum, m) => sum + m.attendanceRate, 0) / total
 
     stats.value = {
         totalMembers: total,
         activeMembers: active,
-        newMembers: newCount,
-        avgAttendance: Math.round(avgAttendance)
+        newMembers: members.value.filter(m =>
+            m.joinDate && new Date(m.joinDate).getMonth() === thisMonth
+        ).length,
+        avgAttendance: total
+            ? Math.round(
+                members.value.reduce((s, m) => s + (m.attendanceRate || 0), 0) / total
+            )
+            : 0
     }
 }
+
+/* ================= 生命周期 ================= */
+
+onMounted(async () => {
+    await calculateStats()
+    showToast('info', '成员管理页面已加载')
+})
+
+/* ================= 其他函数保持不变 ================= */
+// toggle / batch / delete / badge / formatDate 你原来的都 OK
+// 方法
+
+// async function fetchAllMembers() {
+//     try {
+//         const fetchresult = await fetch(`${apinodes[0]!.domain}/api/admin/member/listall/`, {
+//             credentials: 'include',
+//             method: "POST"
+//         });
+
+//         // 1. 校验 HTTP 响应状态
+//         if (!fetchresult.ok) {
+//             throw new Error(`请求失败，状态码：${fetchresult.status}（${fetchresult.statusText}）`);
+//         }
+
+//         // 2. 解析响应体（根据接口返回格式选择 json() 或 text()，此处以 json 为例）
+//         const json = await fetchresult.json();
+//         return json as { data: Member[] }
+
+//     } catch (error) {
+//         // 3. 安全处理 catch 块中的 error，明确类型判断
+//         let errorMessage = "获取成员列表失败，请稍后重试"; // 默认兜底提示
+
+//         // 优先判断是否为 Error 实例，提取精准错误信息
+//         if (error instanceof Error) {
+//             errorMessage = error.message; // 使用 Error 实例的 message 属性，更简洁友好
+//         }
+//         // 兼容其他可能的异常类型（字符串、数字等）
+//         else if (typeof error === "string") {
+//             errorMessage = error;
+//         }
+
+//         // 4. 调用提示函数，传递明确的错误信息
+//         showToast("error", errorMessage);
+//     }
+// }
+
+// const calculateStats = async () => {
+//     const res = await fetchAllMembers()
+//     if (res?.data) {
+//         members.value = res.data.map(m => ({
+//             ...m,
+
+//             // 👇 给模板兜底（否则模板访问 undefined）
+//             department: m.department ?? '未分配',
+//             role: m.role ?? 'member',
+//             status: m.status ?? 'active',
+//             joinDate: m.created_at?.slice(0, 10) ?? '',
+//             lastActivity: '刚刚',
+//             attendanceRate: 100
+//         }))
+//     }
+//     const total = members.value.length
+//     const active = members.value.filter(m => m.status === 'active').length
+//     const thisMonth = new Date().getMonth()
+//     const newCount = members.value.filter(m => {
+//         const joinMonth = new Date(m.joinDate).getMonth()
+//         return joinMonth === thisMonth
+//     }).length
+//     const avgAttendance = members.value.reduce((sum, m) => sum + m.attendanceRate, 0) / total
+
+//     stats.value = {
+//         totalMembers: total,
+//         activeMembers: active,
+//         newMembers: newCount,
+//         avgAttendance: Math.round(avgAttendance)
+//     }
+// }
 
 const handleSearch = () => {
     currentPage.value = 1
@@ -765,7 +719,7 @@ const clearSelection = () => {
 const showAddMemberModal = () => {
     memberForm.value = {
         name: '',
-        studentId: '',
+        studentNo: '',
         department: '',
         role: '',
         email: '',
@@ -782,12 +736,12 @@ const editMember = (memberId: number) => {
         editingMember.value = member
         memberForm.value = {
             name: member.name,
-            studentId: member.studentId,
-            department: member.department,
-            role: member.role,
+            studentNo: member.studentNo || '',
+            department: member.department || "未知",
+            role: member.role || "未知",
             email: member.email || '',
-            phone: member.phone || '',
-            notes: member.notes || ''
+            phone: '',
+            notes: ''
         }
         showAddModal.value = true
     }
@@ -809,15 +763,17 @@ const saveMember = () => {
         const newMember: Member = {
             id: Math.max(...members.value.map(m => m.id)) + 1,
             name: memberForm.value.name,
-            studentId: memberForm.value.studentId,
+            studentNo: memberForm.value.studentNo,
             department: memberForm.value.department,
             role: memberForm.value.role,
             status: 'active',
-            email: memberForm.value.email || undefined,
-            phone: memberForm.value.phone || undefined,
-            joinDate: new Date().toISOString().split('T')[0] || "计算失败",
+            email: memberForm.value.email || null,
+            joinDate: new Date().toISOString().slice(0, 10),
             lastActivity: '刚刚',
-            notes: memberForm.value.notes || undefined,
+            avatar: '',
+            remark: '',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
             attendanceRate: 100
         }
         members.value.unshift(newMember)
@@ -874,6 +830,37 @@ const batchUpdateStatus = (status: string) => {
     calculateStats()
     showToast('success', '状态更新成功')
 }
+
+
+const recentActiveMembers = computed(() => {
+    return [...members.value]
+        .sort((a, b) =>
+            new Date(b.lastActivity || 0).getTime() -
+            new Date(a.lastActivity || 0).getTime()
+        )
+        .slice(0, 5)
+})
+
+const departmentStats = computed(() => {
+    const counter: Record<string, number> = {}
+
+    members.value.forEach(m => {
+        const dept = m.department || '未分配'
+        counter[dept] = (counter[dept] || 0) + 1
+    })
+
+    const total = members.value.length || 1
+    const colors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b']
+
+    return Object.entries(counter).map(([name, count], i) => ({
+        name,
+        count,
+        percentage: ((count / total) * 100).toFixed(1),
+        color: colors[i % colors.length]
+    }))
+})
+
+
 
 const viewMemberDetail = (memberId: number) => {
     showToast('info', '查看成员详情功能开发中...')
@@ -939,97 +926,27 @@ const formatDate = (dateStr: string) => {
     return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
 }
 
-members = ref<Member[]>([
+// 快速操作
+const quickActions = ref([
     {
-        id: 1,
-        name: '三张',
-        studentId: '20230001',
-        department: '技术部',
-        role: 'admin',
-        status: 'active',
-        email: 'zhangsan@example.com',
-        joinDate: '2023-09-01',
-        lastActivity: '刚刚',
-        attendanceRate: 95
-    },
-    {
-        id: 2,
-        name: '李四',
-        studentId: '20230002',
-        department: '宣传部',
-        role: 'member',
-        status: 'active',
-        joinDate: '2023-09-10',
-        lastActivity: '10分钟前',
-        attendanceRate: 88
-    },
-    {
-        id: 3,
-        name: '王五',
-        studentId: '20230003',
-        department: '策划部',
-        role: 'member',
-        status: 'inactive',
-        joinDate: '2023-09-15',
-        lastActivity: '2天前',
-        attendanceRate: 60
-    },
-    {
-        id: 4,
-        name: '赵六',
-        studentId: '20230004',
-        department: '技术部',
-        role: 'intern',
-        status: 'active',
-        joinDate: '2023-10-01',
-        lastActivity: '1小时前',
-        attendanceRate: 92
-    },
-    {
-        id: 5,
-        name: '钱七',
-        studentId: '20230005',
-        department: '外联部',
-        role: 'member',
-        status: 'graduated',
-        joinDate: '2022-09-01',
-        lastActivity: '1个月前',
-        attendanceRate: 78
-    },
-    {
-        id: 6,
-        name: '孙八',
-        studentId: '20230006',
-        department: '技术部',
-        role: 'member',
-        status: 'active',
-        joinDate: '2023-09-20',
-        lastActivity: '30分钟前',
-        attendanceRate: 90
-    },
-    {
-        id: 7,
-        name: '周九',
-        studentId: '20230007',
-        department: '宣传部',
-        role: 'member',
-        status: 'active',
-        joinDate: '2023-10-05',
-        lastActivity: '2小时前',
-        attendanceRate: 85
-    },
-    {
-        id: 8,
-        name: '吴十',
-        studentId: '20230008',
-        department: '策划部',
-        role: 'intern',
-        status: 'inactive',
-        joinDate: '2023-10-10',
-        lastActivity: '3天前',
-        attendanceRate: 55
-    }
-])
+        id: 'export',
+        name: '导出数据',
+        icon: 'bi bi-download'
+
+    }, {
+        id: 'import',
+        name: '导入成员',
+        icon: 'bi bi-upload'
+    }, {
+        id: 'assign',
+        name: '分配任务',
+        icon: 'bi bi-check-square'
+    }, {
+        id: 'send',
+        name: '发送通知',
+        icon: 'bi bi-send'
+    }])
+
 </script>
 
 <style scoped>

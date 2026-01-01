@@ -393,9 +393,9 @@ if (isAdminActive.value) {
 }
 
 @media (max-width: 994px) {
-    .sidebar-footer-container {
+    /*.sidebar-footer-container {
         padding: 1px;
-    }
+    }*/
 
     .sidebar-nav[data-v-8f24bfcd] {
         padding: 16px 0;
