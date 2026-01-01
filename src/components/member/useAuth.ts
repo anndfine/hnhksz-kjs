@@ -11,6 +11,7 @@ interface User {
     studentId: string
     lastLogin: string
     permissions: string[]
+    isAdmin?: boolean
 }
 
 interface AuthState {
@@ -29,8 +30,8 @@ const authState = ref<AuthState>({
 
 export function useAuth() {
     // 检查登录状态
-    const checkAuth = async (): Promise<boolean> => {
-        authState.value.loading = true
+    const checkAuth = async (noShowLoading?: boolean): Promise<boolean> => {
+        if (!noShowLoading) authState.value.loading = true
         authState.value.error = null
 
         try {
@@ -38,7 +39,12 @@ export function useAuth() {
 
             if (result.success && result.data) {
                 authState.value.isAuthenticated = true
-                authState.value.user = result.data
+                // authState.value.user = result.data
+                const { canAdmin, ...rest } = result.data;
+                authState.value.user = {
+                    ...rest,
+                    isAdmin: canAdmin || false
+                };
                 return true
             } else {
                 authState.value.isAuthenticated = false
@@ -67,7 +73,9 @@ export function useAuth() {
 
             if (success) {
                 // 登录成功，重新获取用户信息
-                await checkAuth()
+                const checkagain_result = await checkAuth(true)
+                if (!checkagain_result) throw new Error("获取数据失败，请检查是否阻止了第三方 Cookie")
+                console.log(`状态：${checkagain_result}`)
                 return true
             } else {
                 authState.value.error = '登录失败，请检查用户名和密码'
@@ -78,12 +86,9 @@ export function useAuth() {
         } catch (error) {
             console.error('登录失败:', error)
             authState.value.error = error instanceof Error ? error.message : '登录失败'
-            // 发生错误时也检查认证状态
-            // await checkAuth()
-            // return false
             throw error
         } finally {
-            authState.value.loading = false
+            // authState.value.loading = false
         }
     }
 

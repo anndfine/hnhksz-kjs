@@ -51,6 +51,10 @@ export class ComputeChallenge {
             this.isComputing = true;
             this.abortController = new AbortController();
 
+
+            // 创建并显示UI
+            this.createModal();
+
             // 获取挑战数据
             this.currentChallenge = challengeData || await this.fetchChallengeFromServer();
 
@@ -58,8 +62,6 @@ export class ComputeChallenge {
                 return { success: false, error: "挑战数据无效或已过期" };
             }
 
-            // 创建并显示UI
-            this.createModal();
 
             // 执行工作量证明计算
             const result = await this.executeProofOfWork();
@@ -133,7 +135,7 @@ export class ComputeChallenge {
                         <div class="compute-challenge-container">
                             <div class="compute-loading">
                                 <div class="compute-spinner"></div>
-                                <p class="compute-status">正在初始化安全计算...</p>
+                                <p class="compute-status">请稍后...</p>
                             </div>
                             <div class="compute-progress-area">
                                 <div class="compute-progress">
@@ -540,7 +542,7 @@ export class ComputeChallenge {
         let lastUpdateTime = startTime;
 
         // 🔥 动态调整批量大小
-        let batchSize = 1000; // 初始批量大小
+        let batchSize = 1; // 初始批量大小
 
         try {
             while (true) {
@@ -595,7 +597,7 @@ export class ComputeChallenge {
                 const currentTime = Date.now();
                 // 🔥 异步更新UI（不阻塞计算）
                 const shouldUpdateUI = (() => {
-                    return currentTime - lastUpdateTime > 160;
+                    return currentTime - lastUpdateTime > 100;
                 })();
 
                 if (shouldUpdateUI) {
@@ -608,11 +610,11 @@ export class ComputeChallenge {
                         // 估算进度
                         const probability = 1 / Math.pow(16, requiredZeros);
                         const expectedTotalHashes = 1 / probability;
-                        const progress = Math.min(95, (nonce / expectedTotalHashes) * 100);
+                        const progress = Math.min(98, (nonce * 0.5 / expectedTotalHashes) * 100);
 
                         this.updateProgress(progress, hashesPerSecond, elapsedTime);
                         lastUpdateTime = currentTime;
-                    }, 1); // 1ms延迟，让出主线程
+                    }, 0); // 1ms延迟，让出主线程
                 }
 
                 // 检查超时
