@@ -65,6 +65,7 @@ import ExportDataModal from '@/components/member/modals/ExportDataModal.vue'
 import DeleteAccountModal from '@/components/member/modals/DeleteAccountModal.vue'
 import ProfileEdit from '@/components/member/profile/ProfileEdit.vue'
 import MemberManagement from '@/components/member/MemberManagementView.vue'
+import AddMemberView from '@/components/member/AddMemberView.vue'
 
 const { isAuthenticated, user, loading: authLoading, checkAuth, logout, startPolling } = useAuth()
 
@@ -108,7 +109,8 @@ const componentMap = {
     help: HelpView,
     settings: SettingsView,
     editprofile: EditProfileView,
-    'member-management': MemberManagement
+    'member-management': MemberManagement,
+    'add-member': AddMemberView
 }
 
 const currentComponent = computed(() => {
