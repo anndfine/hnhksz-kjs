@@ -51,15 +51,16 @@ export class ComputeChallenge {
             this.isComputing = true
             this.abortController = new AbortController()
 
+            // 创建并显示UI
+            this.createModal()
+
             // 获取挑战数据
             this.currentChallenge = challengeData || (await this.fetchChallengeFromServer())
+            this.updateUI('loading', '正在连接...')
 
             if (!this.validateChallenge(this.currentChallenge)) {
                 return { success: false, error: '挑战数据无效或已过期' }
             }
-
-            // 创建并显示UI
-            this.createModal()
 
             // 执行工作量证明计算
             const result = await this.executeProofOfWork()
@@ -142,6 +143,7 @@ export class ComputeChallenge {
                                     <span class="compute-time">用时: 0.0s</span>
                                     <span class="compute-hashrate">速度: 0 H/s</span>
                                 </div>
+                                <div class="compute-expires text-start text-muted" style="font-size: 0.6em;">过期时间: - </div>
                             </div>
                             <div class="compute-controls">
                                 <button class="compute-cancel-btn">终止计算</button>
@@ -159,9 +161,9 @@ export class ComputeChallenge {
         this.setupEventListeners()
 
         // 显示挑战信息
-        if (this.currentChallenge) {
-            this.updateChallengeInfo()
-        }
+        // if (this.currentChallenge) {
+        //     this.updateChallengeInfo()
+        // }
     }
 
     /**
@@ -422,9 +424,28 @@ export class ComputeChallenge {
         const difficultyConfig =
             this.difficultyConfig[this.currentChallenge.difficulty as keyof typeof this.difficultyConfig]
         const difficultyElement = this.modalElement.querySelector('.compute-difficulty')
+        // 🔥 添加过期时间显示
+        const expiresTime = new Date(this.currentChallenge.expires).toLocaleTimeString()
 
         if (difficultyElement) {
-            difficultyElement.textContent = `难度: ${this.currentChallenge.difficulty}/10 (${difficultyConfig.description})`
+            difficultyElement.textContent = `难度: ${this.currentChallenge.difficulty}/10 - ${difficultyConfig.description}`
+        }
+
+        // 🔥 更新标题和状态信息
+        const statusElement = this.modalElement.querySelector('.compute-status')
+        if (statusElement) {
+            statusElement.textContent = `挑战难度: ${this.currentChallenge.difficulty}/10`
+        }
+
+        // 🔥 更新模态框标题
+        const titleElement = this.modalElement.querySelector('.compute-modal-header h3')
+        if (titleElement) {
+            titleElement.textContent = `安全验证 - 难度 ${this.currentChallenge.difficulty}`
+        }
+
+        const expiresElement = this.modalElement.querySelector('.compute-expires')
+        if (expiresElement) {
+            expiresElement.textContent = `过期时间: ${expiresTime}`
         }
     }
 
@@ -444,7 +465,7 @@ export class ComputeChallenge {
                 container.innerHTML = `
                     <div class="compute-loading">
                         <div class="compute-spinner"></div>
-                        <p class="compute-status">正在初始化安全计算...</p>
+                        <p class="compute-status">正在初始化...</p>
                     </div>
                     <div class="compute-progress-area">
                         <div class="compute-progress">
@@ -455,6 +476,7 @@ export class ComputeChallenge {
                             <span class="compute-time">用时: 0.0s</span>
                             <span class="compute-hashrate">速度: 0 H/s</span>
                         </div>
+                        <div class="compute-expires text-start text-muted" style="font-size: 0.6em;">过期时间: - </div>
                     </div>
                     <div class="compute-controls">
                         <button class="compute-cancel-btn">终止计算</button>
@@ -532,7 +554,7 @@ export class ComputeChallenge {
         const requiredZeros = difficultyConfig.zeros
         const maxTime = difficultyConfig.maxTime
 
-        this.updateUI('computing', '正在计算...')
+        this.updateUI('computing', '完成时间根据设备性能及分配难度而异...')
 
         let nonce = 0
         let totalHashesComputed = 0
@@ -542,7 +564,7 @@ export class ComputeChallenge {
         let computationError: Error | null = null
 
         // 🔥 动态调整批量大小
-        let batchSize = 8000 // 初始批量大小
+        let batchSize = 25000 // 初始批量大小
 
         // 🔥 创建一个共享的进度状态对象
         const progressState = {
@@ -640,7 +662,7 @@ export class ComputeChallenge {
      * 🔥 启动独立的UI更新器
      */
     private startUIUpdater(progressState: any): number {
-        const updateInterval = 30 // 每100ms更新一次UI
+        const updateInterval = 100 // 每100ms更新一次UI
 
         const updateUI = () => {
             if (!progressState.isRunning) return

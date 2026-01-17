@@ -11,15 +11,19 @@
             <div class="mb-3">
                 <label for="username" class="form-label">邮箱</label>
                 <input type="text" class="form-control" id="username" v-model="form.username" :disabled="localLoading"
-                    required autocomplete="username">
+                    required autocomplete="username" />
             </div>
 
             <div class="mb-4">
                 <label for="password" class="form-label">密码</label>
                 <input type="password" class="form-control" id="password" v-model="form.password"
-                    :disabled="localLoading" required autocomplete="current-password">
+                    :disabled="localLoading" required autocomplete="current-password" />
             </div>
-
+            <!-- 忘记密码了？ -->
+            <div class="text-end mb-3">
+                <a @click.prevent="handleRedirectToResetPassword"
+                    class="text-decoration-none text-muted small">忘记密码了？</a>
+            </div>
             <button type="submit" class="btn btn-primary w-100 login-btn" :disabled="localLoading">
                 <span v-if="localLoading" class="spinner-border spinner-border-sm me-2"></span>
                 {{ localLoading ? '登录中...' : '登录' }}
@@ -36,7 +40,9 @@
                 <i class="bi bi-info-circle me-1"></i>
                 遇到问题？请<a href="https://yt437700.top" target="_blank" class="text-decoration-none">联系管理员获得技术支持</a>
             </small>
-            <div><small><a href="/">返回主页</a></small></div>
+            <div>
+                <small><a href="/">返回主页</a></small>
+            </div>
         </div>
     </div>
 </template>
@@ -44,6 +50,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useAuth } from '@/components/member/useAuth.ts'
+import { showToast } from '@/utils/toast'
 
 const { login } = useAuth()
 
@@ -51,12 +58,12 @@ const emit = defineEmits<{
     loginSuccess: []
 }>()
 
-const localLoading = ref(false)  // 使用本地loading状态
-const localError = ref('')       // 使用本地error状态
+const localLoading = ref(false) // 使用本地loading状态
+const localError = ref('') // 使用本地error状态
 
 const form = reactive({
     username: '',
-    password: ''
+    password: '',
 })
 
 const handleLogin = async () => {
@@ -71,14 +78,14 @@ const handleLogin = async () => {
     try {
         const success = await login({
             username: form.username,
-            password: form.password
+            password: form.password,
         })
 
         if (success) {
-            console.log("登录成功")
+            console.log('登录成功')
             emit('loginSuccess')
         } else {
-            throw new Error("用户名或密码错误")
+            throw new Error('用户名或密码错误')
         }
     } catch (err) {
         console.error('登录过程出错:', err)
@@ -92,6 +99,22 @@ const handleLogin = async () => {
             localLoading.value = false
         }, 100)
     }
+}
+
+const handleRedirectToResetPassword = () => {
+    setTimeout(() => {
+        showToast('info', `3秒后跳转到重置密码页面`, 1000)
+        setTimeout(() => {
+            showToast('info', `2秒后跳转到重置密码页面`, 1000)
+            setTimeout(() => {
+                showToast('info', `1秒后跳转到重置密码页面`, 1000)
+                setTimeout(() => {
+                    showToast('info', `0秒后跳转到重置密码页面`, 1400)
+                    window.location.href = '/member/reset-password'
+                }, 1000)
+            }, 1000)
+        }, 1000)
+    }, 1000)
 }
 
 onMounted(() => {
