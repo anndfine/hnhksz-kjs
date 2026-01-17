@@ -436,6 +436,11 @@ import { ref, computed, onMounted } from 'vue'
 import { showToast } from '@/utils/toast'
 import { apinodes } from '@/data/apinodes'
 
+interface Emits {
+    (e: 'tabChange', tab: string): void
+}
+const emit = defineEmits<Emits>()
+
 interface Member {
     id: number              // 后端唯一 ID
     name: string
@@ -504,6 +509,12 @@ const memberForm = ref({
     phone: '',
     notes: ''
 })
+
+
+// 跳转到添加成员页面
+function navigateToAddMember() {
+    emit('tabChange', 'add-member')
+}
 
 /* ================= Fetch ================= */
 
@@ -717,17 +728,7 @@ const clearSelection = () => {
 }
 
 const showAddMemberModal = () => {
-    memberForm.value = {
-        name: '',
-        studentNo: '',
-        department: '',
-        role: '',
-        email: '',
-        phone: '',
-        notes: ''
-    }
-    editingMember.value = null
-    showAddModal.value = true
+    navigateToAddMember()
 }
 
 const editMember = (memberId: number) => {
